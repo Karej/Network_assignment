@@ -7,12 +7,12 @@ import json
 import os
 from tkinter.font import BOLD, ITALIC
 
-#HOST_ADDR = "192.168.1.12"
+# HOST_ADDR = "192.168.1.12"
 HOST_ADDR = socket.gethostbyname(socket.gethostname())
 HOST_PORT = 5507
 
 
-#ADMIN_ADDR = "192.168.1.12"
+# ADMIN_ADDR = "192.168.1.12"
 ADMIN_ADDR = socket.gethostbyname(socket.gethostname())
 ADMIN_PORT = 5505
 
@@ -55,11 +55,19 @@ class User:
         self.host_client = serverAdress
         try:
             self.client_process.connect((self.host_client, self.port_client))
-            messagebox.showinfo("Information", "Welcome to Chat Room")
+            messagebox.showinfo("Information", "Welcome to the Chat Room!!!")
             idFrame.place(relheight=0, relwidth=0)
             loginFrame.place(relheight=1, relwidth=1)
         except:
-            messagebox.showerror("ERROR", "Invalid ID Room")
+            messagebox.showerror("ERROR", "You entered invalid ID")
+
+    def signUpPage(self):
+        loginFrame.place(relheight=0, relwidth=0)
+        signUpFrame.place(relheight=1, relwidth=1)
+
+    def LoginPage(self):
+        signUpFrame.place(relheight=0, relwidth=0)
+        loginFrame.place(relheight=1, relwidth=1)
 # ------------------------ BASIC FUNCTION ---------------------
     # server-process listen to client
 
@@ -185,7 +193,7 @@ class User:
                     while (datacome != "endsend"):
                         print("begin receive")
                         datacome = self.recv(channel, client)
-                        #print(datacome ," ", type(datacome))
+                        # print(datacome ," ", type(datacome))
 
                         if ("endsend" in datacome):
                             print("end receive")
@@ -330,7 +338,7 @@ class User:
             connect_friend = friendList[friendID]["name"]
             friendLabel.config(text=connect_friend)
             sendMessBut.config(state=NORMAL)
-            sendFileBut.config(state=NORMAL)
+            sendFileButton.config(state=NORMAL)
 
 
 if __name__ == "__main__":
@@ -348,123 +356,218 @@ if __name__ == "__main__":
     root.protocol("WM_DELETE_WINDOW", user.onClosing)
 
     # -------------------ENTER ID FRAME---------------------
+
     idFrame = Frame(root)
     idFrame.config(bg=COLOR_4)
     idFrame.place(relheight=1, relwidth=1)
-    # --------------Components
+
+    # --------------Print Welcome line----------------------
+
     idWelcome = Label(idFrame, text="WELCOME TO CHAT ROOM")
     idWelcome.config(bg=COLOR_1, fg=COLOR_4,
                      font=('Calibri', 16, BOLD, ITALIC))
     idWelcome.place(relheight=0.12, relwidth=0.8, relx=0.1, rely=0.1)
 
-    idIntro = Label(idFrame, text='Please input your ID to connect the room')
-    idIntro.config(bg=COLOR_1, fg=COLOR_4, font=('Calibri', 13))
-    idIntro.place(relheight=0.07, relwidth=0.8, relx=0.1, rely=0.27)
+    # --------------Print Instruction----------------------
+
+    idIns = Label(idFrame, text='Please input your ID to connect the room')
+    idIns.config(bg=COLOR_1, fg=COLOR_4, font=('Calibri', 13))
+    idIns.place(relheight=0.07, relwidth=0.8, relx=0.1, rely=0.27)
+
+    # --------------Print Label ID----------------------
 
     idLabel = Label(idFrame, text="ID Room")
     idLabel.place(relheight=0.05, relwidth=0.15, relx=0.15, rely=0.42)
     idLabel.config(bg=COLOR_3, fg=COLOR_1, font=('Calibri', 11, BOLD))
+
+    # --------------Input bar for entering ID----------------------
 
     idInputBar = Entry(idFrame)
     idInputBar.config(bg="#ffffff", fg=COLOR_1, relief=SUNKEN, borderwidth=1,
                       font=('Calibri', 11, BOLD))
     idInputBar.place(relheight=0.05, relwidth=0.5, relx=0.35, rely=0.42)
 
+    # --------------Button to connect the room----------------------
+
     idButton = Button(idFrame, text="Connect")
     idButton.place(relheight=0.05, relwidth=0.15, relx=0.7, rely=0.62)
     idButton.config(bg=COLOR_1, fg=COLOR_4, relief=RAISED, borderwidth=1, font=('Calibri', 11, BOLD),
                     command=lambda: user.serverConnect(idInputBar.get()))
+
     # --------------------LOGIN FRAME-----------------------
+
     loginFrame = Frame(root)
     loginFrame.config(bg=COLOR_4)
-    # --------------Components
-    loginAuth = Label(loginFrame, text="AUTHENTICATION")
+
+    # --------------Login Auth Welcome----------------------
+
+    loginAuth = Label(loginFrame, text="LOGIN")
     loginAuth.config(bg=COLOR_1, fg=COLOR_4,
                      font=('Calibri', 16, BOLD, ITALIC))
     loginAuth.place(relheight=0.05, relwidth=0.8, relx=0.1, rely=0.15)
 
-    loginIntro = Label(loginFrame, text="Enter your username and password")
-    loginIntro.config(bg=COLOR_1, fg=COLOR_4, font=('Calibri', 13, BOLD))
-    loginIntro.place(relheight=0.05, relwidth=0.8, relx=0.1, rely=0.25)
+    # --------------Login Instruction----------------------
 
-    nameLabel = Label(loginFrame, text="Username")
-    nameLabel.config(bg=COLOR_3, fg=COLOR_1, font=('Calibri', 11, BOLD))
-    nameLabel.place(relheight=0.05, relwidth=0.15, relx=0.15, rely=0.42)
+    loginIns = Label(loginFrame, text="Enter your username and password")
+    loginIns.config(bg=COLOR_1, fg=COLOR_4, font=('Calibri', 13, BOLD))
+    loginIns.place(relheight=0.05, relwidth=0.8, relx=0.1, rely=0.25)
 
-    passLabel = Label(loginFrame, text="Password")
-    passLabel.config(bg=COLOR_3, fg=COLOR_1, font=('Calibri', 11, BOLD))
-    passLabel.place(relheight=0.05, relwidth=0.15, relx=0.15, rely=0.52)
+    # --------------Login Username----------------------
 
-    nameInput = Entry(loginFrame)
-    nameInput.config(bg="#ffffff", fg=COLOR_1, relief=SUNKEN)
-    nameInput.place(relheight=0.05, relwidth=0.5, relx=0.35, rely=0.42)
+    L_nameLabel = Label(loginFrame, text="Username")
+    L_nameLabel.config(bg=COLOR_3, fg=COLOR_1, font=('Calibri', 11, BOLD))
+    L_nameLabel.place(relheight=0.05, relwidth=0.15, relx=0.15, rely=0.42)
 
-    passInput = Entry(loginFrame)
-    passInput.config(bg="#ffffff", fg=COLOR_1, relief=SUNKEN)
-    passInput.place(relheight=0.05, relwidth=0.5, relx=0.35, rely=0.52)
+    L_passLabel = Label(loginFrame, text="Password")
+    L_passLabel.config(bg=COLOR_3, fg=COLOR_1, font=('Calibri', 11, BOLD))
+    L_passLabel.place(relheight=0.05, relwidth=0.15, relx=0.15, rely=0.52)
 
-    LoginButton = Button(loginFrame, text="Log In")
-    LoginButton.config(bg=COLOR_1, fg=COLOR_4, relief=RAISED, borderwidth=1, font=('Calibri', 11), command=lambda: user.serverHandle(
-        1, nameInput.get(), passInput.get()))
-    LoginButton.place(relheight=0.05, relwidth=0.15, relx=0.5, rely=0.62)
+    # --------------Login Password----------------------
 
-    SignupButton = Button(loginFrame, text="Sign In")
-    SignupButton.config(bg=COLOR_1, fg=COLOR_4, relief=RAISED, borderwidth=1, font=(
-        'Calibri', 11), command=lambda: user.serverHandle(2, nameInput.get(), passInput.get()))
-    SignupButton.place(relheight=0.05, relwidth=0.15, relx=0.7, rely=0.62)
+    L_nameInput = Entry(loginFrame)
+    L_nameInput.config(bg="#ffffff", fg=COLOR_1, relief=SUNKEN)
+    L_nameInput.place(relheight=0.05, relwidth=0.5, relx=0.35, rely=0.42)
+
+    L_passInput = Entry(loginFrame)
+    L_passInput.config(bg="#ffffff", fg=COLOR_1, relief=SUNKEN)
+    L_passInput.place(relheight=0.05, relwidth=0.5, relx=0.35, rely=0.52)
+
+    # --------------Login Button to enter the chat room----------------------
+
+    loginButton = Button(loginFrame, text="Log In")
+    loginButton.config(bg=COLOR_1, fg=COLOR_4, relief=RAISED, borderwidth=1, font=('Calibri', 11), command=lambda: user.serverHandle(
+        1, L_nameInput.get(), L_passInput.get()))
+    loginButton.place(relheight=0.05, relwidth=0.2, relx=0.4, rely=0.62)
+
+    # --------------Change to signup page if you don't have an account----------------------
+
+    signUpLabel = Label(loginFrame, text="Don't have an account ?")
+    signUpLabel.config(fg=COLOR_1,  bg=COLOR_4, font=(
+        'Calibri', 11, BOLD))
+    signUpLabel.place(relheight=0.05, relwidth=0.3, relx=0.2, rely=0.72)
+
+    signUpButton = Button(loginFrame, text="Sign Up")
+    signUpButton.config(bg=COLOR_1, fg=COLOR_4, relief=RAISED, borderwidth=1, font=(
+        'Calibri', 11), command=lambda: user.signUpPage())
+    signUpButton.place(relheight=0.05, relwidth=0.15, relx=0.60, rely=0.72)
+
+    # --------------------Sign up FRAME-----------------------
+
+    signUpFrame = Frame(root)
+    signUpFrame.config(bg=COLOR_4)
+
+    # --------------Signup Auth Welcome----------------------
+
+    signUpAuth = Label(signUpFrame, text="SIGN UP")
+    signUpAuth.config(bg=COLOR_1, fg=COLOR_4,
+                      font=('Calibri', 16, BOLD, ITALIC))
+    signUpAuth.place(relheight=0.05, relwidth=0.8, relx=0.1, rely=0.15)
+
+    # --------------Signup Instruction----------------------
+
+    signUpIns = Label(
+        signUpFrame, text="Enter your username and password")
+    signUpIns.config(bg=COLOR_1, fg=COLOR_4, font=('Calibri', 13, BOLD))
+    signUpIns.place(relheight=0.05, relwidth=0.8, relx=0.1, rely=0.25)
+
+    # --------------Sign up username----------------------
+
+    S_nameLabel = Label(signUpFrame, text="Username")
+    S_nameLabel.config(bg=COLOR_3, fg=COLOR_1, font=('Calibri', 11, BOLD))
+    S_nameLabel.place(relheight=0.05, relwidth=0.15, relx=0.15, rely=0.42)
+
+    S_nameInput = Entry(signUpFrame)
+    S_nameInput.config(bg="#ffffff", fg=COLOR_1, relief=SUNKEN)
+    S_nameInput.place(relheight=0.05, relwidth=0.5, relx=0.35, rely=0.42)
+
+    # --------------Sign up password----------------------
+
+    S_passLabel = Label(signUpFrame, text="Password")
+    S_passLabel.config(bg=COLOR_3, fg=COLOR_1, font=('Calibri', 11, BOLD))
+    S_passLabel.place(relheight=0.05, relwidth=0.15, relx=0.15, rely=0.52)
+
+    S_passInput = Entry(signUpFrame)
+    S_passInput.config(bg="#ffffff", fg=COLOR_1, relief=SUNKEN)
+    S_passInput.place(relheight=0.05, relwidth=0.5, relx=0.35, rely=0.52)
+
+    # --------------Sign up button to create account & enter chat room----------------------
+
+    SignUpButton = Button(signUpFrame, text="Sign Up")
+    SignUpButton.config(bg=COLOR_1, fg=COLOR_4, relief=RAISED, borderwidth=1, font=('Calibri', 11), command=lambda: user.serverHandle(
+        2, S_nameInput.get(), S_passInput.get()))
+    SignUpButton.place(relheight=0.05, relwidth=0.2, relx=0.4, rely=0.62)
+
+    # --------------If you have an account then go to Log in page----------------------
+
+    signUpLabel = Label(signUpFrame, text="Have an account ?")
+    signUpLabel.config(fg=COLOR_1,  bg=COLOR_4, font=(
+        'Calibri', 11, BOLD))
+    signUpLabel.place(relheight=0.05, relwidth=0.3, relx=0.2, rely=0.72)
+
+    LogInButton = Button(signUpFrame, text="Log In")
+    LogInButton.config(bg=COLOR_1, fg=COLOR_4, relief=RAISED, borderwidth=1, font=(
+        'Calibri', 11), command=lambda: user.LoginPage())
+    LogInButton.place(relheight=0.05, relwidth=0.15, relx=0.60, rely=0.72)
 
     # --------------------CHAT FRAME-----------------------
+
     chatFrame = Frame(root)
+
+    # -------------------- FRIENDS FRAME-----------------------
+
     friendsFrame = Frame(chatFrame)
-    displayFrame = Frame(chatFrame)
-    messageFrame = Frame(chatFrame)
-
-    # FriendList Frame
-    friendsIntro = Label(friendsFrame, text="Friends")
-    refreshButt = Button(friendsFrame, text="Refresh")
-    # Display Message Frame
-    waitBox = Text(displayFrame)
-    messBox = Text(displayFrame)
-    notifLabel = Label(displayFrame,  text="Notification")
-    friendLabel = Label(displayFrame, text="NULL")
-    # Message Frame
-    sendFileBut = Button(messageFrame, text="FILE")
-    sendMessBut = Button(messageFrame, text="CHAT")
-    messInput = Entry(messageFrame)
-
     friendsFrame.config(bg=COLOR_3)
-    displayFrame.config(bg=COLOR_4)
-    messageFrame.config(bg="#ffffff")
-
-    friendsIntro.config(bg=COLOR_4, fg=COLOR_1)
-    refreshButt.config(bg=COLOR_4, fg=COLOR_1,
-                       command=lambda: user.refreshHandle())
-
-    messBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
-    waitBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
-    notifLabel.config(bg=COLOR_1, fg=COLOR_4)
-    friendLabel.config(bg=COLOR_1, fg=COLOR_4)
-
-    sendFileBut.config(bg=COLOR_4, fg=COLOR_1, relief=FLAT,
-                       state=DISABLED, command=lambda: user.sendFile())
-    sendMessBut.config(bg=COLOR_3, fg=COLOR_1, relief=FLAT,
-                       state=DISABLED, command=lambda: user.sendMess())
-    messInput.config(bg="#ffffff", fg=COLOR_1)
-
     friendsFrame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
-    displayFrame.place(relheight=0.9, relwidth=0.8, relx=0.2, rely=0)
-    messageFrame.place(relheight=0.1, relwidth=0.8, relx=0.2, rely=0.9)
 
+    friendsIntro = Label(friendsFrame, text="Friends")
+    friendsIntro.config(bg=COLOR_4, fg=COLOR_1)
     friendsIntro.place(relwidth=0.9, relx=0.05, rely=0.05)
-    refreshButt.place(relwidth=0.9, relx=0.05, rely=0.9)
 
+    refreshButton = Button(friendsFrame, text="Refresh")
+    refreshButton.config(bg=COLOR_4, fg=COLOR_1,
+                         command=lambda: user.refreshHandle())
+    refreshButton.place(relwidth=0.9, relx=0.05, rely=0.9)
+
+    # --------------------DISPLAY FRAME-----------------------
+
+    displayFrame = Frame(chatFrame)
+    displayFrame.config(bg=COLOR_4)
+    displayFrame.place(relheight=0.9, relwidth=0.8, relx=0.2, rely=0)
+
+    waitBox = Text(displayFrame)
+    waitBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
     waitBox.place(relwidth=1, relheight=0.5, rely=0)
+
+    messBox = Text(displayFrame)
+    messBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
     messBox.place(relwidth=1, relheight=0.5, rely=0.5)
-    notifLabel.place(relwidth=0.2, relheight=0.05, relx=0.8)
+
+    notifyLabel = Label(displayFrame,  text="Notification")
+    notifyLabel.config(bg=COLOR_1, fg=COLOR_4)
+    notifyLabel.place(relwidth=0.2, relheight=0.05, relx=0.8)
+
+    friendLabel = Label(displayFrame, text="NULL")
+    friendLabel.config(bg=COLOR_1, fg=COLOR_4)
     friendLabel.place(relwidth=0.2, relheight=0.05, relx=0.8, rely=0.5)
 
-    sendFileBut.place(relheight=1, relwidth=0.1, relx=0, rely=0)
-    sendMessBut.place(relheight=1, relwidth=0.1, relx=0.1, rely=0)
-    messInput.place(relheight=1, relwidth=0.8, relx=0.2, rely=0)
+    # --------------------MESSAGE FRAME-----------------------
+
+    messageFrame = Frame(chatFrame)
+    messageFrame.config(bg="#ffffff")
+    messageFrame.place(relheight=0.1, relwidth=0.8, relx=0.2, rely=0.9)
+
+    sendFileButton = Button(messageFrame, text="FILE")
+    sendFileButton.config(bg=COLOR_4, fg=COLOR_1, relief=FLAT,
+                          state=DISABLED, command=lambda: user.sendFile())
+    sendFileButton.place(relheight=1, relwidth=0.1, relx=0, rely=0)
+
+    sendMessBut = Button(messageFrame, text="CHAT")
+    sendMessBut.config(bg=COLOR_3, fg=COLOR_1, relief=FLAT,
+                       state=DISABLED, command=lambda: user.sendMess())
+    sendMessBut.place(relheight=1, relwidth=0.1, relx=0.9, rely=0)
+
+    messInput = Entry(messageFrame)
+    messInput.config(bg="#ffffff", fg=COLOR_1)
+    messInput.place(relheight=1, relwidth=0.8, relx=0.1, rely=0)
 
     root.mainloop()
