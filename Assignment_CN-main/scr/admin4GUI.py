@@ -20,10 +20,10 @@ MODE_SIGNIN = 2
 MESS_SUCCESS = "SUCCESS"
 MESS_FAILURE = "FAILED"
 
-COLOR_1="#753422"
-COLOR_2="#B05B3B"
-COLOR_3="#D79771"
-COLOR_4="#FFEBC9"
+COLOR_1 = "#040073"
+COLOR_2 = "#1337ac"
+COLOR_3 = "#617dd7"
+COLOR_4 = "#ffffff"
 
 user_list = {}
 class Admin:
@@ -38,49 +38,51 @@ class Admin:
         self.server_process.listen(10)
         #----------------Front End
         self.gui = Tk()
-        self.gui.title("Gui for Admin")
-        self.gui.geometry("500x500")
+        self.gui.title("ADMIN GUI")
+        self.gui.geometry("600x600")
         self.gui.protocol("WM_DELETE_WINDOW", self.onClosing)
         #ID Frame
         self.idFrame = Frame(self.gui)
-        self.idIntro = Label(self.idFrame, text="CLONE META")
-        self.idLabel = Label(self.idFrame, text="ID ROOM")
+        self.idIntro = Label(self.idFrame, text="ID ROOM")
+        self.idLabel = Label(self.idFrame, text="WELCOME TO ADMIN GUI")
         self.idInput = Label(self.idFrame, text=self.host_server)
+        self.idLabel.config(font=("Arial", 25), bg=COLOR_1, fg=COLOR_4)
+        self.idLabel.pack()
         #--------Component config
-        self.idFrame.config(bg=COLOR_4)
+        self.idFrame.config(bg=COLOR_2)
         self.idIntro.config(bg=COLOR_1, fg=COLOR_4)
-        self.idLabel.config(bg=COLOR_3, fg=COLOR_1)
+       # self.idLabel.config(bg=COLOR_3, fg=COLOR_1)
         self.idInput.config(bg="#ffffff", fg=COLOR_1)
         #--------Component place
-        self.idFrame.place(relheight=0.3, relwidth=1)
-        self.idIntro.place(relheight=0.15, relwidth=0.7, relx=0.15, rely=0.32)
-        self.idLabel.place(relheight=0.15, relwidth=0.15, relx=0.15, rely=0.52)
-        self.idInput.place(relheight=0.15, relwidth=0.5, relx=0.35, rely=0.52)
+        self.idFrame.place(relheight=0.34, relwidth=1)
+        self.idIntro.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32)
+        #self.idLabel.place(relheight=0.15, relwidth=0.15, relx=0.15, rely=0.52)
+        self.idInput.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52)
 
         #Action Frame
         self.actFrame = Frame(self.gui)
         self.onlFrame = Frame(self.actFrame)
-        self.offFrame = Frame(self.actFrame)
-        self.actIntro = Label(self.actFrame, text="LIST OF REGISTED USER")
+        #self.offFrame = Frame(self.actFrame)
+        #self.actIntro = Label(self.actFrame, text="LIST OF REGISTED USER")
         
-        self.onlIntro = Label(self.onlFrame, text="ONLINE")
-        self.offIntro = Label(self.offFrame, text="OFFLINE")
+        self.onlIntro = Label(self.onlFrame, text="LIST OF ONLINE USER")
+        #self.offIntro = Label(self.offFrame, text="OFFLINE")
         #-------Component config
         self.onlFrame.config(bg = COLOR_4)
-        self.offFrame.config(bg = COLOR_4)
+        #self.offFrame.config(bg = COLOR_4)
         self.actFrame.config(bg = COLOR_3)
-        self.actIntro.config(bg = COLOR_1, fg = COLOR_4)
-        self.onlIntro.config(bg = COLOR_4, fg = COLOR_1)
-        self.offIntro.config(bg = COLOR_4, fg = COLOR_1)
+       # self.actIntro.config(bg = COLOR_1, fg = COLOR_4)
+        self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)
+        #self.offIntro.config(bg = COLOR_4, fg = COLOR_1)
         #-------Component place
-        self.onlFrame.place(relheight=0.55, relwidth=0.35, relx=0.1, rely=0.3)
-        self.offFrame.place(relheight=0.55, relwidth=0.35, relx=0.55, rely= 0.3)
-        self.actFrame.place(relheight=0.7, relwidth=1, rely=0.3)
-        self.actIntro.place(relheight=0.07, relwidth=0.7, relx= 0.15, rely=0.12)
-        self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
-        self.offIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
+        self.onlFrame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)
+        #self.offFrame.place(relheight=0.55, relwidth=0.35, relx=0.55, rely= 0.3)
+        self.actFrame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3)
+       # self.actIntro.place(relheight=0.07, relwidth=0.3, relx= 0.35, rely=0.12)
+        self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02)
+       # self.offIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
         self.onlUser = []
-        self.offUser = []
+        #self.offUser = []
 
 
 #------------------------ BASIC FUNCTION ---------------------   
@@ -112,32 +114,32 @@ class Admin:
         with open("account.json", "rb") as f:
             jsonFile = json.load(f)
         self.onlUser = {}
-        self.offUser = {}
+        #self.offUser = {}
         
         for account in jsonFile["account"]:
             self.onlUser[account["name"]] = Label(self.onlFrame, text=account['name'])
             self.onlUser[account["name"]].config(bg=COLOR_1, fg=COLOR_4)
-            self.offUser[account["name"]] = Label(self.offFrame, text=account['name'])
-            self.offUser[account["name"]].config(bg=COLOR_1, fg=COLOR_4)
+            #self.offUser[account["name"]] = Label(self.offFrame, text=account['name'])
+            #self.offUser[account["name"]].config(bg=COLOR_1, fg=COLOR_4)
 
         onlIndex = 0
-        offIndex = 0
+        #offIndex = 0
     
         for widget in self.onlFrame.winfo_children():
             widget.place(relheight=0, relwidth=0)
-        for widget in self.offFrame.winfo_children():
-            widget.place(relheight=0, relwidth=0)
+        #for widget in self.offFrame.winfo_children():
+            #widget.place(relheight=0, relwidth=0)
 
         self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
-        self.offIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
+        #self.offIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
         for account in jsonFile["account"]:
             if account["isAct"] == 1:
                 onlIndex+=1
                 self.onlUser[account["name"]].place(relheight=0.1, relwidth = 0.8, relx=0.1, rely =  onlIndex*0.15)
             
-            else:
-                offIndex+=1
-                self.offUser[account["name"]].place(relheight=0.1, relwidth = 0.8, relx=0.1, rely =  offIndex*0.15)
+            #else:
+                #offIndex+=1
+                #self.offUser[account["name"]].place(relheight=0.1, relwidth = 0.8, relx=0.1, rely =  offIndex*0.15)
                 
 
         with open('account.json','w') as f:
