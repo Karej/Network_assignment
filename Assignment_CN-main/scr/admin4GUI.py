@@ -40,8 +40,11 @@ class Admin:
         self.port_server = ADMIN_PORT
         self.curr_client = 0
 
-        self.server_process = socket.socket()
+        # Creating a socket object.
+        self.server_process = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Binding the server to the host and port.
         self.server_process.bind((self.host_server, self.port_server))
+        # The above code is listening for 10 connections.
         self.server_process.listen(10)
         
         #Front End
@@ -103,7 +106,8 @@ class Admin:
         The function listens for new clients and creates a new thread for each client
         """
         while self.curr_client<MAX_CILENT: # no more than 10 clients
-            channel,client = self.server_process.accept() # accept connection
+            # accept new client and create a new thread for it
+            channel,client = self.server_process.accept() 
             print(f"Client: {client}") # print client address
             try: # try to create a new thread
                 self.curr_client += 1 # get new client
@@ -314,20 +318,27 @@ class Admin:
             
     # Communication with Normal User
     def userChat(self, channel, client):
+        """
+        It sends a json file to the client, then receives a message from the client, then sends a
+        message to the client,....
+        :param channel: the channel that the client is connected to
+        :param client: the client object
+        """
         friendID = 0
+        # Sending the json file to the client.
         while friendID != -1:
             print("check")
             if friendID>=-1 or friendID==-2:
                 with open("account.json", "rb") as f:
-                    jsonFile = json.load(f)
-                    self.send(channel, client, json.dumps(jsonFile))
-                    self.receive_message(channel, client)
+                    jsonFile = json.load(f)                   # load json filefA
+                    self.send(channel, client, json.dumps(jsonFile))    # send json file
+                    self.receive_message(channel, client)           # receive message
             
-            friendID = int(self.receive_message(channel, client))
-            self.send(channel, client, "Received")
+            friendID = int(self.receive_message(channel, client)) # receive friendID
+            self.send(channel, client, "Received") # send
 
 
-        userName = self.receive_message(channel, client)
+        userName = self.receive_message(channel, client) 
         self.send(channel, client, "Diconnected")
         self.deactiveAccount(userName)
         self.curr_client -= 1
