@@ -125,7 +125,7 @@ class Admin:
         :param client: the client object
         :return: The message that was received.
         """
-        mess = channel.receive_message(1024).decode(FORMAT) # receive message
+        mess = channel.recv(1024).decode(FORMAT) # receive message
         return mess
     #server-process send message to other
     def send(self, channel, client, message): # send message to client    
