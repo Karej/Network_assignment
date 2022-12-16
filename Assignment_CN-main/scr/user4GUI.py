@@ -274,6 +274,9 @@ class User:
     # Start to communication
 
     def sendMess(self):
+        """
+        It sends a message to the server, which then sends it to the other client.
+        """
         mess = messInput.get()
 
         messBox.config(state=NORMAL)
@@ -288,6 +291,9 @@ class User:
         self.chat_proc.recv(1024).decode(FORMAT)
 
     def sendFile(self):
+        """
+        It sends a file to the server
+        """
         filename = filedialog.askopenfilename(
             initialdir="d:/", title="Select a File", filetypes=(("text file", "*.txt"), ("all files", "*.*")))
         file = open(filename, "r")

@@ -65,12 +65,10 @@ class Admin:
         #--------Component config
         self.Frame.config(bg=COLOR_2)
         self.Id_Room.config(bg=COLOR_1, fg=COLOR_4)
-       # self.idLabel.config(bg=COLOR_3, fg=COLOR_1)
         self.Input.config(bg="#ffffff", fg=COLOR_1)
         #--------Component place
         self.Frame.place(relheight=0.34, relwidth=1)
         self.Id_Room.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32)
-        #self.idLabel.place(relheight=0.15, relwidth=0.15, relx=0.15, rely=0.52)
         self.Input.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52)
 
         #Action Frame
@@ -78,21 +76,14 @@ class Admin:
         self.Online_Frame = Frame(self.Act_Frame)
         
         self.onlIntro = Label(self.Online_Frame, text="LIST OF ONLINE USER")
-        #self.offIntro = Label(self.offFrame, text="OFFLINE")
         #-------Component config
         self.Online_Frame.config(bg = COLOR_4)
-        #self.offFrame.config(bg = COLOR_4)
-        self.Act_Frame.config(bg = COLOR_3)
-       # self.actIntro.config(bg = COLOR_1, fg = COLOR_4)
+        self.Act_Frame.config(bg = COLOR_2)
         self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)
-        #self.offIntro.config(bg = COLOR_4, fg = COLOR_1)
         #-------Component place
         self.Online_Frame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)
-        #self.offFrame.place(relheight=0.55, relwidth=0.35, relx=0.55, rely= 0.3)
         self.Act_Frame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3)
-       # self.actIntro.place(relheight=0.07, relwidth=0.3, relx= 0.35, rely=0.12)
         self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02)
-       # self.offIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
         self.Online_User = []
         #self.offUser = []
 
@@ -145,41 +136,32 @@ class Admin:
     
     
     def updateUserList(self):
+        """
+        It reads a json file, creates a dictionary, loops through the json file, creates a label for
+        each account, places the label in a frame, and then writes the json file.
+        """
         with open("account.json", "rb") as f: 
             jsonFile = json.load(f) # read json file
         self.Online_User = {} # create new dictionary
-        #self.offUser = {}
         
         for account in jsonFile["account"]: # loop through all account
             # Creating a new label with the name of the account.
             self.Online_User[account["name"]] = Label(self.Online_Frame, text=account['name']) 
             self.Online_User[account["name"]].config(bg=COLOR_1, fg=COLOR_4) 
-            #self.offUser[account["name"]] = Label(self.offFrame, text=account['name'])
-            #self.offUser[account["name"]].config(bg=COLOR_1, fg=COLOR_4)
 
         # A variable to keep track of the index of the label.
         onlIndex = 0
-        #offIndex = 0
-    
         
         for widget in self.Online_Frame.winfo_children():
             widget.place(relheight=0, relwidth=0)
-        #for widget in self.offFrame.winfo_children():
-            #widget.place(relheight=0, relwidth=0)
 
         self.onlIntro.place(relheight=0.1, relwidth=0.3, relx=0.2)
-        #self.offIntro.place(relheight=0.1, relwidth=0.6, relx=0.2)
         # This is a loop that goes through all the accounts in the json file and checks if the account
         # is active. If it is, it will add 1 to the index and place the label in the frame.
         for account in jsonFile["account"]:
             if account["isAct"] == 1:
                 onlIndex+=1
                 self.Online_User[account["name"]].place(relheight=0.1, relwidth = 0.8, relx=0.1, rely =  onlIndex*0.15)
-            
-            #else:
-                #offIndex+=1
-                #self.offUser[account["name"]].place(relheight=0.1, relwidth = 0.8, relx=0.1, rely =  offIndex*0.15)
-                
 
         with open('account.json','w') as f:
             json.dump(jsonFile,f) 
@@ -197,15 +179,15 @@ class Admin:
         :param adr: {'127.0.0.1': '8080'}
         :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
         """
-        infor = {}
+        Information = {}
         accInfor=acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
         adrInfor=adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
-        infor["name"] = accInfor[0]
-        infor["password"] = accInfor[1]
-        infor["address"] = adrInfor[0]
-        infor["port"] = adrInfor[1]
-        infor["isAct"] = 1
-        return infor
+        Information["name"] = accInfor[0]
+        Information["password"] = accInfor[1]
+        Information["address"] = adrInfor[0]
+        Information["port"] = adrInfor[1]
+        Information["isAct"] = 1
+        return Information
     
     
     def checkAccount(self, jsonFile, jsonObject):
@@ -239,7 +221,7 @@ class Admin:
         return jsonFile, MESS_SUCCESS
     
     
-    def deactiveAccount(self, userName):
+    def Deactive_acc(self, userName):
         """
         It opens the json file, finds the account with the name that matches the userName parameter,
         sets the isAct value to 0, and then dumps the json file
@@ -271,6 +253,7 @@ class Admin:
         self.user_Authentication(channel, client)
         self.updateUserList()
         self.userChat(channel, client)
+        
     # Authentification for normal user
     
     
@@ -280,7 +263,7 @@ class Admin:
         the client receives the message in order
         
         :param channel: the channel that the client is connected to
-        :param client: the socket object
+        :param client: the client socket
         """
         acc = None
         mess = None
@@ -317,11 +300,13 @@ class Admin:
     # Communication with Normal User
     def userChat(self, channel, client):
         """
-        It sends a json file to the client, then receives a message from the client, then sends a
-        message to the client,....
+        The function receives a message from the client, then sends a message to the client, then
+        deactivates the account, then decrements the current client count
+        
         :param channel: the channel that the client is connected to
-        :param client: the client object
+        :param client: The client that is currently connected to the server
         """
+
         friendID = 0
         # Sending the json file to the client.
         while friendID != -1:
@@ -332,22 +317,26 @@ class Admin:
                     self.Send_mess(channel, client, json.dumps(jsonFile))    # Send_mess json file
                     self.receive_message(channel, client)           # receive message
             
+            # Receiving a friendID from the client and sending a message back to the client.
             friendID = int(self.receive_message(channel, client)) # receive friendID
             self.Send_mess(channel, client, "Received") # Send_mess
 
 
+       # Receiving a message from the client, then sending a message to the client, then deactivating
+       # the account, then decrementing the current client count.
         userName = self.receive_message(channel, client) 
         self.Send_mess(channel, client, "Diconnected")
-        self.deactiveAccount(userName)
+        self.Deactive_acc(userName)
         self.curr_client -= 1
     
-    # Admin user just have server-process, which keeps track on database, normal user information
+    # Admin user just have server-process, which keeps track on database, normal user Informationmation
 
 if __name__=="__main__":
     print("Messenger Clone: Admin")
     admin = Admin()
     
     
+    # Creating a thread that will run the admin.listen() function.
     thread = threading.Thread(target = admin.listen)
     thread.daemon= True
     thread.start()
