@@ -54,7 +54,7 @@ class Admin:
         self.gui.title("ADMIN GUI")
         self.gui.geometry("600x600")
         self.gui.protocol("WM_DELETE_WINDOW", self.Close)
-        #ID Frame
+  
         self.Frame = Frame(self.gui)
         self.Id_Room = Label(self.Frame, text="ID ROOM")
         self.idLabel = Label(self.Frame, text="WELCOME TO ADMIN GUI")
@@ -62,33 +62,31 @@ class Admin:
         self.idLabel.config(font=("Arial", 25), bg=COLOR_1, fg=COLOR_4)
         self.idLabel.pack()
         
-        #--------Component config
+
         self.Frame.config(bg=COLOR_2)
         self.Id_Room.config(bg=COLOR_1, fg=COLOR_4)
         self.Input.config(bg="#ffffff", fg=COLOR_1)
-        #--------Component place
+
         self.Frame.place(relheight=0.34, relwidth=1)
         self.Id_Room.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32)
         self.Input.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52)
 
-        #Action Frame
+
         self.Act_Frame = Frame(self.gui)
-        self.Online_Frame = Frame(self.Act_Frame)
-        
+        self.Online_Frame = Frame(self.Act_Frame)       
         self.onlIntro = Label(self.Online_Frame, text="LIST OF ONLINE USER")
-        #-------Component config
+
         self.Online_Frame.config(bg = COLOR_4)
         self.Act_Frame.config(bg = COLOR_2)
         self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)
-        #-------Component place
+
         self.Online_Frame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)
         self.Act_Frame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3)
         self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02)
         self.Online_User = []
-        #self.offUser = []
 
 
-#------------------------ BASIC FUNCTION ---------------------   
+#BASIC FUNCTION
     #server-process listen to client
     def listen(self):                           
         """
@@ -101,10 +99,22 @@ class Admin:
             try: # try to create a new thread
                 self.curr_client += 1 # get new client
                 thr = threading.Thread(target=self.userHandle, args=(channel,client)) # create new thread
-                thr.daemon = False # set daemon to False
+                thr.TF = False # set TF to False
                 thr.start() # start thread
             except: 
                 print("error") # print error
+                
+                
+    def Send_mess(self, channel, client, message): # Send_mess message to client    
+        """
+        It sends a message to a client
+        
+        :param channel: the socket
+        :param client: the client that the message is being sent to
+        :param message: the message to Send_mess
+        """
+        channel.sendall(str(message).encode(FORMAT)) # Send_mess message
+        
     #server-process recieve message from other
     def receive_message(self, channel, client):        
         """
@@ -117,24 +127,36 @@ class Admin:
         mess = channel.recv(1024).decode(FORMAT) # receive message
         return mess
     #server-process Send_mess message to other
-    def Send_mess(self, channel, client, message): # Send_mess message to client    
-        """
-        It sends a message to a client
-        
-        :param channel: the socket
-        :param client: the client that the message is being sent to
-        :param message: the message to Send_mess
-        """
-        channel.sendall(str(message).encode(FORMAT)) # Send_mess message
-        
-        
+       
     #fucntion support for close the connection
     def Close(self): 
         self.server_process.close() # close server
         self.gui.destroy() # close gui
     #function support for update user list
     
+    #function support for Authentification    
+    def processAccount(self, acc, adr):
+        """
+        It takes a string of the form "name:password" and "address:port" and returns a dictionary with
+        the keys "name", "password", "address", "port", and "isAct" with the values being the
+        corresponding values from the input strings
+        
+        :param acc: {'name': 'password'}
+        :param adr: {'127.0.0.1': '8080'}
+        :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
+        """
+        Information = {}
+        accInfor=acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
+        adrInfor=adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
+        Information["name"] = accInfor[0]
+        Information["password"] = accInfor[1]
+        Information["address"] = adrInfor[0]
+        Information["port"] = adrInfor[1]
+        Information["isAct"] = 1
+        return Information
     
+    
+       
     def updateUserList(self):
         """
         It reads a json file, creates a dictionary, loops through the json file, creates a label for
@@ -168,27 +190,17 @@ class Admin:
         pass
     
     
-    #function support for Authentification    
-    def processAccount(self, acc, adr):
-        """
-        It takes a string of the form "name:password" and "address:port" and returns a dictionary with
-        the keys "name", "password", "address", "port", and "isAct" with the values being the
-        corresponding values from the input strings
+        def createAccount(self, jsonFile, jsonObject):
+            """
+            It takes a json file, and a json object, and appends the json object to the json file
         
-        :param acc: {'name': 'password'}
-        :param adr: {'127.0.0.1': '8080'}
-        :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
-        """
-        Information = {}
-        accInfor=acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
-        adrInfor=adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
-        Information["name"] = accInfor[0]
-        Information["password"] = accInfor[1]
-        Information["address"] = adrInfor[0]
-        Information["port"] = adrInfor[1]
-        Information["isAct"] = 1
-        return Information
-    
+            :param jsonFile: The json file that is being read from
+            :param jsonObject: {"name": "John", "age": 30, "city": "New York"}
+            :return: The jsonFile and the MESS_SUCCESS
+            """
+            jsonFile["account"].append(jsonObject)
+            return jsonFile, MESS_SUCCESS
+       
     
     def checkAccount(self, jsonFile, jsonObject):
         """
@@ -208,19 +220,7 @@ class Admin:
                 return jsonFile, MESS_SUCCESS
         return jsonFile, MESS_FAILURE
     
-    
-    def createAccount(self, jsonFile, jsonObject):
-        """
-        It takes a json file, and a json object, and appends the json object to the json file
-        
-        :param jsonFile: The json file that is being read from
-        :param jsonObject: {"name": "John", "age": 30, "city": "New York"}
-        :return: The jsonFile and the MESS_SUCCESS
-        """
-        jsonFile["account"].append(jsonObject)
-        return jsonFile, MESS_SUCCESS
-    
-    
+
     def Deactive_acc(self, userName):
         """
         It opens the json file, finds the account with the name that matches the userName parameter,
@@ -238,7 +238,7 @@ class Admin:
             json.dump(jsonFile,f)   
 
         self.updateUserList()
-#------------------------ SERVER PROCESS ---------------------
+# SERVER PROCESS 
     #FOR ADMIN USER
     # Enforce normal user to  login before allow them to chat with other
     def userHandle(self,channel, client):
@@ -270,11 +270,11 @@ class Admin:
         while mess!=MESS_SUCCESS:
             print("-------------------------------------------")
             mode = self.receive_message(channel,client)
-            self.Send_mess(channel, client, "Received")      # ensure client receive inorder
+            #self.Send_mess(channel, client, "Received")      # ensure client receive inorder
             acc = self.receive_message(channel, client)
-            self.Send_mess(channel, client, "Received")      # ensure client receive inorder
+            #self.Send_mess(channel, client, "Received")      # ensure client receive inorder
             adr = self.receive_message(channel , client)
-            self.Send_mess(channel, client, "Received") 
+            #self.Send_mess(channel, client, "Received") 
             
             # Update 
             jsonObject = self.processAccount(acc, adr)
@@ -332,13 +332,12 @@ class Admin:
     # Admin user just have server-process, which keeps track on database, normal user Informationmation
 
 if __name__=="__main__":
-    print("Messenger Clone: Admin")
+    print("You are Admin")
     admin = Admin()
-    
     
     # Creating a thread that will run the admin.listen() function.
     thread = threading.Thread(target = admin.listen)
-    thread.daemon= True
+    thread.TF= True
     thread.start()
 
     admin.gui.mainloop()
