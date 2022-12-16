@@ -45,21 +45,16 @@ class User:
         self.host_client = socket.gethostbyname(HOST_ADDR)
         self.port_client = ADMIN_PORT
 
-        self.server_process = socket.socket()
-        self.client_process = socket.socket()
+        self.server_proc = socket.socket()
+        self.client_proc = socket.socket()
 
-        self.server_process.bind((self.host_server, 0))
-        self.server_process.listen(10)
+        self.server_proc.bind((self.host_server, 0))
+        self.server_proc.listen(10)
 
     def serverConnect(self, serverAdress):
-        """
-        It connects to the server and if it succeeds, it hides the idFrame and shows the loginFrame.
-        
-        :param serverAdress: The IP address of the server
-        """
         self.host_client = serverAdress
         try:
-            self.client_process.connect((self.host_client, self.port_client))
+            self.client_proc.connect((self.host_client, self.port_client))
             messagebox.showinfo("Information", "Welcome to the Chat Room!!!")
             idFrame.place(relheight=0, relwidth=0)
             loginFrame.place(relheight=1, relwidth=1)
@@ -78,7 +73,7 @@ class User:
 
     def listen(self):
         while self.curr_client < MAX_CILENT:
-            channel, client = self.server_process.accept()
+            channel, client = self.server_proc.accept()
             print(f"\nClient: {client}")
             try:
                 self.curr_client += 1
@@ -142,8 +137,8 @@ class User:
         print("UpdateList")
         index = 0
         friendList = self.process(
-            self.client_process.recv(1024).decode(FORMAT))["account"]
-        self.client_process.sendall(('Received').encode(FORMAT))
+            self.client_proc.recv(1024).decode(FORMAT))["account"]
+        self.client_proc.sendall(('Received').encode(FORMAT))
         print("endCheck")
         count = 0
         for friend in friendList:
@@ -161,14 +156,14 @@ class User:
         return userID
 
     def refreshFriendList(self):
-        self.client_process.sendall("-1".encode(FORMAT))
-        self.client_process.recv(1024).decode(FORMAT)
-        self.client_process.sendall(self.userName.encode(FORMAT))
-        self.client_process.recv(1024).decode(FORMAT)
+        self.client_proc.sendall("-1".encode(FORMAT))
+        self.client_proc.recv(1024).decode(FORMAT)
+        self.client_proc.sendall(self.userName.encode(FORMAT))
+        self.client_proc.recv(1024).decode(FORMAT)
 
-        self.client_process.close()
-        self.client_process = socket.socket()
-        self.client_process.connect((self.host_client, self.port_client))
+        self.client_proc.close()
+        self.client_proc = socket.socket()
+        self.client_proc.connect((self.host_client, self.port_client))
         self.serverLogin(1, self.userName, self.password)
 # ------------------------ SERVER PROCESS ---------------------
     # FOR NORMAL USER
@@ -198,7 +193,7 @@ class User:
                 self.send(channel, client, "Received")
 
                 agree = messagebox.askyesno(
-                    f"{current_friend} is here", "A file is sent to you, saved file ?")
+                    f"{current_friend} sends a file", "A file is sent to you, saved file ?")
 
                 if agree:
                     file = filedialog.asksaveasfile(
@@ -219,7 +214,7 @@ class User:
                             self.send(channel, client, "Received")
                     file.write(filedata)
                     file.close()
-                mess = "A file is sent too you"
+                mess = "A file is sent to you"
 
             if (mess != "out"):
                 if current_friend == connect_friend:
@@ -228,9 +223,9 @@ class User:
                     messBox.config(state=DISABLED)
                 else:
                     print(f"{current_friend}: {mess}")
-                    waitBox.config(state=NORMAL)
-                    waitBox.insert(END, f"{current_friend}: {mess}\n")
-                    waitBox.config(state=DISABLED)
+                    notifyBox.config(state=NORMAL)
+                    notifyBox.insert(END, f"{current_friend}: {mess}\n")
+                    notifyBox.config(state=DISABLED)
         if (outFlag == 0):
             print("\nYour friend left the conversation")
             print("Enter 'out' for chat with other friend")
@@ -241,30 +236,30 @@ class User:
     # Before given ability to communication with other, normal user has to send information to admin user
     # this step i called login/signin
 
-    def serverHandle(self, mode, name, pssd):
-        self.serverLogin(mode, name, pssd)
-    # Execute Authentification follow the server instruction
+    def serverHandle(self, mode, name, password):
+        self.serverLogin(mode, name, password)
+    # Execute Authentication follow the server instruction
 
-    def serverLogin(self, mode, name, pssd):
+    def serverLogin(self, mode, name, password):
         mess = None
         # send mode to server
-        self.client_process.sendall(str(mode).encode(FORMAT))
-        self.client_process.recv(1024).decode(FORMAT)
+        self.client_proc.sendall(str(mode).encode(FORMAT))
+        self.client_proc.recv(1024).decode(FORMAT)
 
         self.userName = name
-        self.password = pssd
+        self.password = password
         # execute login/signin mode
-        self.client_process.sendall(str({name: pssd}).encode(FORMAT))
+        self.client_proc.sendall(str({name: password}).encode(FORMAT))
         # Ensure server receive inorder
-        print(self.client_process.recv(1024).decode(FORMAT))
-        self.client_process.sendall(
-            str({self.host_server: self.server_process.getsockname()[1]}).encode(FORMAT))
+        print(self.client_proc.recv(1024).decode(FORMAT))
+        self.client_proc.sendall(
+            str({self.host_server: self.server_proc.getsockname()[1]}).encode(FORMAT))
         # Ensure server receive inorder
-        print(self.client_process.recv(1024).decode(FORMAT))
+        print(self.client_proc.recv(1024).decode(FORMAT))
 
-        self.client_process.sendall(str("Received").encode(FORMAT))
-        mess = self.client_process.recv(1024).decode(FORMAT)
-        self.client_process.sendall(str("Received").encode(FORMAT))
+        self.client_proc.sendall(str("Received").encode(FORMAT))
+        mess = self.client_proc.recv(1024).decode(FORMAT)
+        self.client_proc.sendall(str("Received").encode(FORMAT))
 
         print(f"Authen: {mess}")
         if (mess == MESS_FAILURE):
@@ -287,10 +282,10 @@ class User:
 
         messInput.delete("0", END)
 
-        self.chat_process.sendall("sendmess".encode(FORMAT))
-        self.chat_process.recv(1024).decode(FORMAT)
-        self.chat_process.sendall(mess.encode(FORMAT))
-        self.chat_process.recv(1024).decode(FORMAT)
+        self.chat_proc.sendall("sendmess".encode(FORMAT))
+        self.chat_proc.recv(1024).decode(FORMAT)
+        self.chat_proc.sendall(mess.encode(FORMAT))
+        self.chat_proc.recv(1024).decode(FORMAT)
 
     def sendFile(self):
         filename = filedialog.askopenfilename(
@@ -299,29 +294,29 @@ class User:
         filedata = file.read()
         file.close()
 
-        self.chat_process.sendall("sendfile".encode(FORMAT))
-        self.chat_process.recv(1024).decode(FORMAT)
-        self.chat_process.sendall(filename.encode(FORMAT))
-        self.chat_process.recv(1024).decode(FORMAT)
-        self.chat_process.sendall(filedata.encode(FORMAT))
-        self.chat_process.recv(1024).decode(FORMAT)
-        self.chat_process.sendall("endsend".encode(FORMAT))
-        self.chat_process.recv(1024).decode(FORMAT)
+        self.chat_proc.sendall("sendfile".encode(FORMAT))
+        self.chat_proc.recv(1024).decode(FORMAT)
+        self.chat_proc.sendall(filename.encode(FORMAT))
+        self.chat_proc.recv(1024).decode(FORMAT)
+        self.chat_proc.sendall(filedata.encode(FORMAT))
+        self.chat_proc.recv(1024).decode(FORMAT)
+        self.chat_proc.sendall("endsend".encode(FORMAT))
+        self.chat_proc.recv(1024).decode(FORMAT)
         print("done")
         pass
 
     def onClosing(self):
         try:
-            self.client_process.sendall(str(-1).encode(FORMAT))
-            self.client_process.recv(1024).decode(FORMAT)
+            self.client_proc.sendall(str(-1).encode(FORMAT))
+            self.client_proc.recv(1024).decode(FORMAT)
 
-            self.client_process.sendall(str(self.userName).encode(FORMAT))
-            self.client_process.recv(1024).decode(FORMAT)
-            self.chat_process.sendall("out".encode(FORMAT))
-            self.chat_process.recv(1024).decode(FORMAT)
+            self.client_proc.sendall(str(self.userName).encode(FORMAT))
+            self.client_proc.recv(1024).decode(FORMAT)
+            self.chat_proc.sendall("out".encode(FORMAT))
+            self.chat_proc.recv(1024).decode(FORMAT)
         except:
             pass
-        self.client_process.close()
+        self.client_proc.close()
         root.destroy()
 
     def serverChat(self, name):
@@ -333,22 +328,22 @@ class User:
             if friend["name"] == name:
                 friendID = index
 
-        self.client_process.sendall(str(friendID).encode(FORMAT))
-        self.client_process.recv(1024)
+        self.client_proc.sendall(str(friendID).encode(FORMAT))
+        self.client_proc.recv(1024)
 
         userID = self.updateFriendlist()
         try:
-            self.chat_process.sendall("out".encode(FORMAT))
-            self.chat_process.close()
+            self.chat_proc.sendall("out".encode(FORMAT))
+            self.chat_proc.close()
         except:
             pass
 
         if (friendID > -1 and friendID != userID):
-            self.chat_process = socket.socket()
-            self.chat_process.connect(
+            self.chat_proc = socket.socket()
+            self.chat_proc.connect(
                 (friendList[friendID]["address"], int(friendList[friendID]["port"])))
-            self.chat_process.sendall(self.userName.encode(FORMAT))
-            self.chat_process.recv(1024).decode(FORMAT)
+            self.chat_proc.sendall(self.userName.encode(FORMAT))
+            self.chat_proc.recv(1024).decode(FORMAT)
 
             connect_friend = friendList[friendID]["name"]
             friendLabel.config(text=connect_friend)
@@ -360,9 +355,9 @@ if __name__ == "__main__":
     print("Messenger Clone: User")
     user = User()
 
-    server_process = threading.Thread(target=user.listen)
-    server_process.daemon = True
-    server_process.start()
+    server_proc = threading.Thread(target=user.listen)
+    server_proc.daemon = True
+    server_proc.start()
 
     root = Tk()
 
@@ -549,9 +544,9 @@ if __name__ == "__main__":
     displayFrame.config(bg=COLOR_4)
     displayFrame.place(relheight=0.9, relwidth=0.8, relx=0.2, rely=0)
 
-    waitBox = Text(displayFrame)
-    waitBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
-    waitBox.place(relwidth=1, relheight=0.5, rely=0)
+    notifyBox = Text(displayFrame)
+    notifyBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
+    notifyBox.place(relwidth=1, relheight=0.5, rely=0)
 
     messBox = Text(displayFrame)
     messBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
