@@ -183,7 +183,7 @@ class User:
                 self.send(channel, client, "Received")
 
                 agree = messagebox.askyesno(
-                    f"{current_friend} is here", "A file is sent to you, saved file ?")
+                    f"{current_friend} sends a file", "A file is sent to you, saved file ?")
 
                 if agree:
                     file = filedialog.asksaveasfile(
@@ -204,7 +204,7 @@ class User:
                             self.send(channel, client, "Received")
                     file.write(filedata)
                     file.close()
-                mess = "A file is sent too you"
+                mess = "A file is sent to you"
 
             if (mess != "out"):
                 if current_friend == connect_friend:
@@ -226,20 +226,20 @@ class User:
     # Before given ability to communication with other, normal user has to send information to admin user
     # this step i called login/signin
 
-    def serverHandle(self, mode, name, pssd):
-        self.serverLogin(mode, name, pssd)
-    # Execute Authentification follow the server instruction
+    def serverHandle(self, mode, name, password):
+        self.serverLogin(mode, name, password)
+    # Execute Authentication follow the server instruction
 
-    def serverLogin(self, mode, name, pssd):
+    def serverLogin(self, mode, name, password):
         mess = None
         # send mode to server
         self.client_process.sendall(str(mode).encode(FORMAT))
         self.client_process.recv(1024).decode(FORMAT)
 
         self.userName = name
-        self.password = pssd
+        self.password = password
         # execute login/signin mode
-        self.client_process.sendall(str({name: pssd}).encode(FORMAT))
+        self.client_process.sendall(str({name: password}).encode(FORMAT))
         # Ensure server receive inorder
         print(self.client_process.recv(1024).decode(FORMAT))
         self.client_process.sendall(
