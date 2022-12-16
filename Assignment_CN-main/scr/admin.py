@@ -21,11 +21,11 @@ COLOR_2 = "#1337ac"
 COLOR_3 = "#617dd7"
 COLOR_4 = "#ffffff"
 
-MODE_LOGIN = 1
-MODE_SIGNIN = 2
+#MODE_LOGIN = 1
+#MODE_SIGNIN = 2
 
-MESS_SUCCESS = "SUCCESS"
-MESS_FAILURE = "FAILED"
+Success_message = "SUCCESS"
+Fail_message = "FAILED"
 
 user_list = {} # list of user
 class Admin:
@@ -50,6 +50,7 @@ class Admin:
         #Front End
         
         # Creating a GUI window with a title, size, and color.
+        # Creating a GUI for the admin to see the online users.
         self.gui = Tk()
         self.gui.title("ADMIN GUI")
         self.gui.geometry("600x600")
@@ -135,19 +136,19 @@ class Admin:
     #function support for update user list
     
     #function support for Authentification    
-    def processAccount(self, acc, adr):
+    def processAccount(self, Acc, Adr):
         """
         It takes a string of the form "name:password" and "address:port" and returns a dictionary with
         the keys "name", "password", "address", "port", and "isAct" with the values being the
         corresponding values from the input strings
         
-        :param acc: {'name': 'password'}
-        :param adr: {'127.0.0.1': '8080'}
+        :param Acc: {'name': 'password'}
+        :param Adr: {'127.0.0.1': '8080'}
         :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
         """
         Information = {}
-        accInfor=acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
-        adrInfor=adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
+        accInfor=Acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
+        adrInfor=Adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
         Information["name"] = accInfor[0]
         Information["password"] = accInfor[1]
         Information["address"] = adrInfor[0]
@@ -174,6 +175,7 @@ class Admin:
         # A variable to keep track of the index of the label.
         onlIndex = 0
         
+        # Placing all the widgets in the Online_Frame to the top left corner of the frame.
         for widget in self.Online_Frame.winfo_children():
             widget.place(relheight=0, relwidth=0)
 
@@ -196,10 +198,10 @@ class Admin:
         
             :param jsonFile: The json file that is being read from
             :param jsonObject: {"name": "John", "age": 30, "city": "New York"}
-            :return: The jsonFile and the MESS_SUCCESS
+            :return: The jsonFile and the Success_message
             """
             jsonFile["account"].append(jsonObject)
-            return jsonFile, MESS_SUCCESS
+            return jsonFile, Success_message
        
     
     def checkAccount(self, jsonFile, jsonObject):
@@ -217,8 +219,8 @@ class Admin:
                 account["address"] = jsonObject["address"]
                 account["port"] = jsonObject["port"]
                 account["isAct"] = 1
-                return jsonFile, MESS_SUCCESS
-        return jsonFile, MESS_FAILURE
+                return jsonFile, Success_message
+        return jsonFile, Fail_message
     
 
     def Deactive_acc(self, userName):
@@ -265,28 +267,30 @@ class Admin:
         :param channel: the channel that the client is connected to
         :param client: the client socket
         """
-        acc = None
+        Acc = None
         mess = None
-        while mess!=MESS_SUCCESS:
-            print("-------------------------------------------")
-            mode = self.receive_message(channel,client)
+        while mess!=Success_message:
+
+            type = self.receive_message(channel,client)
             #self.Send_mess(channel, client, "Received")      # ensure client receive inorder
-            acc = self.receive_message(channel, client)
+            Acc = self.receive_message(channel, client)
             #self.Send_mess(channel, client, "Received")      # ensure client receive inorder
-            adr = self.receive_message(channel , client)
+            Adr = self.receive_message(channel , client)
             #self.Send_mess(channel, client, "Received") 
             
             # Update 
-            jsonObject = self.processAccount(acc, adr)
+            jsonObject = self.processAccount(Acc, Adr)
             print(jsonObject)
             with open("account.json", "rb") as f:
                 jsonFile = json.load(f)
 
+            # Receiving a message from the client and then checking the type of message. If the type
+            # is 1, it will check the account. If the type is 2, it will create an account.
             print(self.receive_message(channel , client))
-            if int(mode)==MODE_LOGIN: 
+            if int(type)==1: 
                 jsonFile, mess = self.checkAccount(jsonFile, jsonObject)
                 self.Send_mess(channel, client, mess)
-            elif int(mode)==MODE_SIGNIN:
+            elif int(type)==2:
                 jsonFile, mess = self.createAccount(jsonFile, jsonObject)
                 self.Send_mess(channel, client, mess)
             print(self.receive_message(channel, client))
@@ -294,7 +298,7 @@ class Admin:
             with open('account.json','w') as f:
                 json.dump(jsonFile,f)
 
-            print("-------------------------------------------")
+
             
             
     # Communication with Normal User
