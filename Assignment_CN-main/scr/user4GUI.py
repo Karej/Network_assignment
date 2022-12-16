@@ -52,6 +52,11 @@ class User:
         self.server_process.listen(10)
 
     def serverConnect(self, serverAdress):
+        """
+        It connects to the server and if it succeeds, it hides the idFrame and shows the loginFrame.
+        
+        :param serverAdress: The IP address of the server
+        """
         self.host_client = serverAdress
         try:
             self.client_process.connect((self.host_client, self.port_client))
@@ -95,6 +100,12 @@ class User:
     # client-process send account information to admin went wakeup
 
     def changeFriendHandle(self, name):
+        """
+        It asks the user if they want to leave the current chat, if they do, it clears the chat box and
+        the input box, and then calls the serverChat function.
+        
+        :param name: the name of the friend you want to chat with
+        """
         choose = messagebox.askyesno(
             "Warning", "You will leave the current chat, are you sure")
         if (choose):
@@ -123,6 +134,10 @@ class User:
         return json.loads(strList)
 
     def updateFriendlist(self):
+        """
+        It takes a list of friends from the server, and creates a button for each friend that is online
+        :return: The userID is being returned.
+        """
         global friendList
         print("UpdateList")
         index = 0
