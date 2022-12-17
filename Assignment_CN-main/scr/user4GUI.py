@@ -224,8 +224,8 @@ class User:
 # ------------------------ CLIENT PROCESS ---------------------
     # FOR NORMAL USER
     # Before given ability to communication with other, normal user has to send information to admin user
-    # this step i called login/signin
-
+    # this step is called login/sign in
+    
     def serverHandle(self, mode, name, password):
         self.serverLogin(mode, name, password)
     # Execute Authentication follow the server instruction
@@ -258,7 +258,7 @@ class User:
         else:
             messagebox.showinfo("ATTENTION", "Login/Sign in success")
             loginFrame.place(relheight=0, relwidth=0)
-            chatFrame.place(relheight=1, relwidth=1)
+            chatroomFrame.place(relheight=1, relwidth=1)
             self.userName = name
             self.updateFriendlist()
     # Start to communication
@@ -509,13 +509,13 @@ if __name__ == "__main__":
         'Calibri', 11), command=lambda: user.LoginPage())
     LogInButton.place(relheight=0.05, relwidth=0.15, relx=0.60, rely=0.72)
 
-    # --------------------CHAT FRAME-----------------------
+    # --------------------CHAT ROOM FRAME-----------------------
 
-    chatFrame = Frame(root)
+    chatroomFrame = Frame(root)
 
     # -------------------- FRIENDS FRAME-----------------------
 
-    friendsFrame = Frame(chatFrame)
+    friendsFrame = Frame(chatroomFrame)
     friendsFrame.config(bg=COLOR_3)
     friendsFrame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
 
@@ -530,7 +530,7 @@ if __name__ == "__main__":
 
     # --------------------DISPLAY FRAME-----------------------
 
-    displayFrame = Frame(chatFrame)
+    displayFrame = Frame(chatroomFrame)
     displayFrame.config(bg=COLOR_4)
     displayFrame.place(relheight=0.9, relwidth=0.8, relx=0.2, rely=0)
 
@@ -552,7 +552,7 @@ if __name__ == "__main__":
 
     # --------------------MESSAGE FRAME-----------------------
 
-    messageFrame = Frame(chatFrame)
+    messageFrame = Frame(chatroomFrame)
     messageFrame.config(bg="#ffffff")
     messageFrame.place(relheight=0.1, relwidth=0.8, relx=0.2, rely=0.9)
 
