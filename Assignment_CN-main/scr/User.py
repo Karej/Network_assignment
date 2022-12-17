@@ -5,7 +5,10 @@ import socket
 import threading
 import json
 import os
+from tkinter import font
 from tkinter.font import BOLD, ITALIC
+from tkinter.scrolledtext import ScrolledText
+from PIL import Image, ImageTk
 
 # HOST_ADDR = "192.168.1.12"
 HOST_ADDR = socket.gethostbyname(socket.gethostname())
@@ -51,8 +54,8 @@ class User:
         self.server_proc.bind((self.host_server, 0))
         self.server_proc.listen(10)
 
-    def serverConnect(self, serverAdress):
-        self.host_client = serverAdress
+    def serverConnect(self, serverAddress):
+        self.host_client = serverAddress
         try:
             self.client_proc.connect((self.host_client, self.port_client))
             messagebox.showinfo("Information", "Welcome to the Chat Room!!!")
@@ -98,7 +101,7 @@ class User:
         """
         It asks the user if they want to leave the current chat, if they do, it clears the chat box and
         the input box, and then calls the serverChat function.
-        
+
         :param name: the name of the friend you want to chat with
         """
         choose = messagebox.askyesno(
@@ -134,21 +137,22 @@ class User:
         :return: The userID is being returned.
         """
         global friendList
-        print("UpdateList")
+        print("Update successfully")
         index = 0
         friendList = self.process(
             self.client_proc.recv(1024).decode(FORMAT))["account"]
         self.client_proc.sendall(('Received').encode(FORMAT))
-        print("endCheck")
+        print("Ending check")
         count = 0
         for friend in friendList:
             if friend["name"] != self.userName and friend["isAct"] == 1:
-                print(f"{friend['name']} is here, enter {index} to chat")
+                print(
+                    f"Your friend {friend['name']} is here, enter {index} to chat")
                 butt = Button(friendsFrame, text=friend["name"])
                 butt.config(bg=COLOR_4, fg=COLOR_1, command=lambda name=butt.cget(
-                    'text'):  self.changeFriendHandle(name))
+                    'text'):  self.changeFriendHandle(name), font=('Calibri', 11, BOLD))
                 butt.place(relheight=0.05, relwidth=0.9,
-                           relx=0.05, rely=0.2+count*0.1)
+                           relx=0.05, rely=0.2+count*0.08)
                 count += 1
             elif friend["name"] == self.userName:
                 userID = index
@@ -180,8 +184,8 @@ class User:
         current_friend = self.recv(channel, client)
         self.send(channel, client, "Received")
 
-        messagebox.showinfo(f"{current_friend} is here",
-                            "if you are not connect, refresh friendList")
+        messagebox.showinfo(f"Your friend {current_friend} is here",
+                            "if you are not connect, please refresh the friend list.")
         while mess != "out":
             mess = self.recv(channel, client)
             self.send(channel, client, "Received")
@@ -224,7 +228,7 @@ class User:
                 else:
                     print(f"{current_friend}: {mess}")
                     notifyBox.config(state=NORMAL)
-                    notifyBox.insert(END, f"{current_friend}: {mess}\n")
+                    notifyBox.insert(END, f"{current_friend} sends you a message: {mess}\n")
                     notifyBox.config(state=DISABLED)
         if (outFlag == 0):
             print("\nYour friend left the conversation")
@@ -235,7 +239,7 @@ class User:
     # FOR NORMAL USER
     # Before given ability to communication with other, normal user has to send information to admin user
     # this step is called login/sign in
-    
+
     def serverHandle(self, mode, name, password):
         self.serverLogin(mode, name, password)
     # Execute Authentication follow the server instruction
@@ -261,7 +265,7 @@ class User:
         mess = self.client_proc.recv(1024).decode(FORMAT)
         self.client_proc.sendall(str("Received").encode(FORMAT))
 
-        print(f"Authen: {mess}")
+        print(f"Login status: {mess}")
         if (mess == MESS_FAILURE):
             messagebox.showinfo(
                 "ATTENTION", "Failed, try to Log in/Sign in again")
@@ -358,7 +362,8 @@ class User:
 
 
 if __name__ == "__main__":
-    print("Messenger Clone: User")
+    print("Welcome to Chat Application !!!\n")
+    print("Role: User")
     user = User()
 
     server_proc = threading.Thread(target=user.listen)
@@ -367,7 +372,7 @@ if __name__ == "__main__":
 
     root = Tk()
 
-    root.title("GUI for User")
+    root.title("Chat Application for User")
     root.geometry("500x500")
     root.protocol("WM_DELETE_WINDOW", user.onClosing)
 
@@ -535,13 +540,13 @@ if __name__ == "__main__":
     friendsFrame.config(bg=COLOR_3)
     friendsFrame.place(relheight=1, relwidth=0.2, relx=0, rely=0)
 
-    friendsIntro = Label(friendsFrame, text="Friends")
-    friendsIntro.config(bg=COLOR_4, fg=COLOR_1)
+    friendsIntro = Label(friendsFrame, text="Online friends")
+    friendsIntro.config(bg=COLOR_4, font=('Calibri', 11, BOLD))
     friendsIntro.place(relwidth=0.9, relx=0.05, rely=0.05)
 
     refreshButton = Button(friendsFrame, text="Refresh")
-    refreshButton.config(bg=COLOR_4, fg=COLOR_1,
-                         command=lambda: user.refreshHandle())
+    refreshButton.config(bg=COLOR_4, fg=COLOR_1, font=(
+        'Calibri', 11, BOLD), command=lambda: user.refreshHandle())
     refreshButton.place(relwidth=0.9, relx=0.05, rely=0.9)
 
     # --------------------DISPLAY FRAME-----------------------
@@ -550,40 +555,49 @@ if __name__ == "__main__":
     displayFrame.config(bg=COLOR_4)
     displayFrame.place(relheight=0.9, relwidth=0.8, relx=0.2, rely=0)
 
-    notifyBox = Text(displayFrame)
-    notifyBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
-    notifyBox.place(relwidth=1, relheight=0.5, rely=0)
+    notifyBox = ScrolledText(displayFrame)
+    notifyBox.config(bg=COLOR_4, fg='red', state=DISABLED, font=(
+        'Calibri', 11, BOLD))
+    notifyBox.place(relwidth=1, relheight=0.3, rely=0)
 
-    messBox = Text(displayFrame)
-    messBox.config(bg=COLOR_4, fg=COLOR_1, state=DISABLED)
-    messBox.place(relwidth=1, relheight=0.5, rely=0.5)
+    messBox = ScrolledText(displayFrame)
+    messBox.config(bg=COLOR_4, fg='red', state=DISABLED, font=(
+        'Calibri', 11, BOLD))
+    messBox.place(relwidth=1, relheight=0.7, rely=0.3)
 
     notifyLabel = Label(displayFrame,  text="Notification")
-    notifyLabel.config(bg=COLOR_1, fg=COLOR_4)
+    notifyLabel.config(bg=COLOR_1, fg=COLOR_4, font=(
+        'Calibri', 11, BOLD))
     notifyLabel.place(relwidth=0.2, relheight=0.05, relx=0.8)
 
     friendLabel = Label(displayFrame, text="NULL")
-    friendLabel.config(bg=COLOR_1, fg=COLOR_4)
-    friendLabel.place(relwidth=0.2, relheight=0.05, relx=0.8, rely=0.5)
+    friendLabel.config(bg=COLOR_1, fg=COLOR_4, font=(
+        'Calibri', 11, BOLD))
+    friendLabel.place(relwidth=0.2, relheight=0.05, relx=0.8, rely=0.3)
 
     # --------------------MESSAGE FRAME-----------------------
 
     messageFrame = Frame(chatroomFrame)
     messageFrame.config(bg="#ffffff")
     messageFrame.place(relheight=0.1, relwidth=0.8, relx=0.2, rely=0.9)
+    
+    file = ImageTk.PhotoImage(Image.open('file.png'))
+    send = ImageTk.PhotoImage(Image.open('send.png'))
 
-    sendFileButton = Button(messageFrame, text="FILE")
-    sendFileButton.config(bg=COLOR_4, fg=COLOR_1, relief=FLAT,
-                          state=DISABLED, command=lambda: user.sendFile())
+    sendFileButton = Button(messageFrame, image=file)
+    sendFileButton.config(bg=COLOR_4, fg=COLOR_1, relief=RAISED, font=(
+        'Calibri', 12), state=DISABLED, command=lambda: user.sendFile())
     sendFileButton.place(relheight=1, relwidth=0.1, relx=0, rely=0)
 
-    sendMessBut = Button(messageFrame, text="CHAT")
-    sendMessBut.config(bg=COLOR_3, fg=COLOR_1, relief=FLAT,
-                       state=DISABLED, command=lambda: user.sendMess())
+    sendMessBut = Button(messageFrame, image=send)
+    sendMessBut.config(bg=COLOR_3, fg=COLOR_1, relief=RAISED, font=(
+        'Calibri', 12),
+        state=DISABLED, command=lambda: user.sendMess())
     sendMessBut.place(relheight=1, relwidth=0.1, relx=0.9, rely=0)
 
     messInput = Entry(messageFrame)
-    messInput.config(bg="#ffffff", fg=COLOR_1)
+    messInput.config(bg="#ffffff", fg=COLOR_1, font=(
+        'Calibri', 12), relief=SUNKEN )
     messInput.place(relheight=1, relwidth=0.8, relx=0.1, rely=0)
 
     root.mainloop()
