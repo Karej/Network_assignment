@@ -51,8 +51,8 @@ class User:
         self.server_proc.bind((self.host_server, 0))
         self.server_proc.listen(10)
 
-    def serverConnect(self, serverAddress):
-        self.host_client = serverAddress
+    def serverConnect(self, serverAdress):
+        self.host_client = serverAdress
         try:
             self.client_proc.connect((self.host_client, self.port_client))
             messagebox.showinfo("Information", "Welcome to the Chat Room!!!")
@@ -95,6 +95,12 @@ class User:
     # client-process send account information to admin went wakeup
 
     def changeFriendHandle(self, name):
+        """
+        It asks the user if they want to leave the current chat, if they do, it clears the chat box and
+        the input box, and then calls the serverChat function.
+        
+        :param name: the name of the friend you want to chat with
+        """
         choose = messagebox.askyesno(
             "Warning", "You will leave the current chat, are you sure")
         if (choose):
@@ -123,6 +129,10 @@ class User:
         return json.loads(strList)
 
     def updateFriendlist(self):
+        """
+        It takes a list of friends from the server, and creates a button for each friend that is online
+        :return: The userID is being returned.
+        """
         global friendList
         print("UpdateList")
         index = 0
@@ -264,6 +274,9 @@ class User:
     # Start to communication
 
     def sendMess(self):
+        """
+        It sends a message to the server, which then sends it to the other client.
+        """
         mess = messInput.get()
 
         messBox.config(state=NORMAL)
@@ -278,6 +291,9 @@ class User:
         self.chat_proc.recv(1024).decode(FORMAT)
 
     def sendFile(self):
+        """
+        It sends a file to the server
+        """
         filename = filedialog.askopenfilename(
             initialdir="d:/", title="Select a File", filetypes=(("text file", "*.txt"), ("all files", "*.*")))
         file = open(filename, "r")
