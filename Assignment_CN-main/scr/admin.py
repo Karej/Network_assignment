@@ -21,11 +21,11 @@ COLOR_2 = "#1337ac"
 COLOR_3 = "#617dd7"
 COLOR_4 = "#ffffff"
 
-#MODE_LOGIN = 1
-#MODE_SIGNIN = 2
+MODE_LOGIN = 1
+MODE_SIGNIN = 2
 
-#Success_message = "SUCCESS"
-#Fail_message = "FAILED"
+MESS_SUCCESS = "SUCCESS"
+MESS_FAILURE = "FAILED"
 
 user_list = {} # list of user
 class Admin:
@@ -50,64 +50,45 @@ class Admin:
         #Front End
         
         # Creating a GUI window with a title, size, and color.
-        # Creating a GUI for the admin to see the online users.
         self.gui = Tk()
-        
         self.gui.title("ADMIN GUI")
-        
         self.gui.geometry("600x600")
-        
         self.gui.protocol("WM_DELETE_WINDOW", self.Close)
+        #ID Frame
+        self.Frame = Frame(self.gui)
+        self.Id_Room = Label(self.Frame, text="ID ROOM")
+        self.idLabel = Label(self.Frame, text="WELCOME TO ADMIN GUI")
+        self.Input = Label(self.Frame, text=self.host_server)
+        self.idLabel.config(font=("Arial", 25), bg=COLOR_1, fg=COLOR_4)
+        self.idLabel.pack()
         
-  
-        self.Frame = Frame(self.gui) # The frame for the IP address of the server
-        
-        self.Id_Room = Label(self.Frame, text="ID ROOM") # The ID of the room
-        
-        self.idLabel = Label(self.Frame, text="WELCOME TO ADMIN GUI") # Welcome message
-        
-        self.Input = Label(self.Frame, text=self.host_server) # The IP address of the server
-        
-        self.idLabel.config(font=("Arial", 25), bg=COLOR_1, fg=COLOR_4) # The font, color, and size of the welcome message.
-        
-        self.idLabel.pack() # The welcome message is packed.
-        
+        #--------Component config
+        self.Frame.config(bg=COLOR_2)
+        self.Id_Room.config(bg=COLOR_1, fg=COLOR_4)
+        self.Input.config(bg="#ffffff", fg=COLOR_1)
+        #--------Component place
+        self.Frame.place(relheight=0.34, relwidth=1)
+        self.Id_Room.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32)
+        self.Input.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52)
 
-        self.Frame.config(bg=COLOR_2)    # The  color of the frame.
+        #Action Frame
+        self.Act_Frame = Frame(self.gui)
+        self.Online_Frame = Frame(self.Act_Frame)
         
-        self.Id_Room.config(bg=COLOR_1, fg=COLOR_4) # The font, color, and size of the ID of the room.
-        
-        self.Input.config(bg="#ffffff", fg=COLOR_1) # The font, color, and size of the IP address of the server.
-
-        self.Frame.place(relheight=0.34, relwidth=1) # The size of the frame.
-        
-        self.Id_Room.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32) # The size of the ID of the room.
-        
-        self.Input.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52) # The size of the IP address of the server.
-
-
-        self.Act_Frame = Frame(self.gui) # The frame for the list of online users.
-        
-        self.Online_Frame = Frame(self.Act_Frame)        # The frame for the list of online users. 
-        
-        self.onlIntro = Label(self.Online_Frame, text="LIST OF ONLINE USER")  # The list of online users.
-
-        self.Online_Frame.config(bg = COLOR_4)  # The color of the frame for the list of online users.
-        
-        self.Act_Frame.config(bg = COLOR_2) # The color of the frame for the list of online users.
-        
-        self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)  # The font, color, and size of the list of online users.  
-
-        self.Online_Frame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)  # The  size of the frame for the list of online users.
-        
-        self.Act_Frame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3) # The size of the frame for the list of online users.
-        
-        self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02) # The  size of the list of online users.
-        
-        self.Online_User = [] #if user is online, add to this list
+        self.onlIntro = Label(self.Online_Frame, text="LIST OF ONLINE USER")
+        #-------Component config
+        self.Online_Frame.config(bg = COLOR_4)
+        self.Act_Frame.config(bg = COLOR_2)
+        self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)
+        #-------Component place
+        self.Online_Frame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)
+        self.Act_Frame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3)
+        self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02)
+        self.Online_User = []
+        #self.offUser = []
 
 
-#BASIC FUNCTION
+#------------------------ BASIC FUNCTION ---------------------   
     #server-process listen to client
     def listen(self):                           
         """
@@ -116,33 +97,14 @@ class Admin:
         while self.curr_client<MAX_CILENT: # no more than 10 clients
             # accept new client and create a new thread for it
             channel,client = self.server_process.accept() 
-            
             print(f"Client: {client}") # print client address
-            
             try: # try to create a new thread
                 self.curr_client += 1 # get new client
-                
                 thr = threading.Thread(target=self.userHandle, args=(channel,client)) # create new thread
-                
-                thr.TF = False # set TF to False
-                
+                thr.daemon = False # set daemon to False
                 thr.start() # start thread
-                
             except: 
-                
                 print("error") # print error
-                
-                
-    def Send_mess(self, channel, client, message): # Send_mess message to client    
-        """
-        It sends a message to a client
-        
-        :param channel: the socket
-        :param client: the client that the message is being sent to
-        :param message: the message to Send_mess
-        """
-        channel.sendall(str(message).encode(FORMAT)) # Send_mess message
-        
     #server-process recieve message from other
     def receive_message(self, channel, client):        
         """
@@ -155,46 +117,24 @@ class Admin:
         mess = channel.recv(1024).decode(FORMAT) # receive message
         return mess
     #server-process Send_mess message to other
-       
+    def Send_mess(self, channel, client, message): # Send_mess message to client    
+        """
+        It sends a message to a client
+        
+        :param channel: the socket
+        :param client: the client that the message is being sent to
+        :param message: the message to Send_mess
+        """
+        channel.sendall(str(message).encode(FORMAT)) # Send_mess message
+        
+        
     #fucntion support for close the connection
     def Close(self): 
         self.server_process.close() # close server
-        
         self.gui.destroy() # close gui
     #function support for update user list
     
-    #function support for Authentification    
-    def processAccount(self, Acc, Adr):
-        """
-        It takes a string of the form "name:password" and "address:port" and returns a dictionary with
-        the keys "name", "password", "address", "port", and "isAct" with the values being the
-        corresponding values from the input strings
-        
-        :param Acc: {'name': 'password'}
-        :param Adr: {'127.0.0.1': '8080'}
-        :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
-        """
-        Information = {}
-        
-        accInfor=Acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":") # remove all the characters that are not needed
-        
-        adrInfor=Adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":") # remove all the characters that are not needed
-        # Creating a dictionary called Information and adding the values of the accInfor and adrInfor
-        # lists to it.
-        Information["name"] = accInfor[0]   
-        
-        Information["password"] = accInfor[1]    
-        
-        Information["address"] = adrInfor[0]
-        
-        Information["port"] = adrInfor[1]
-        
-        Information["isAct"] = 1
-        
-        return Information
     
-    
-       
     def updateUserList(self):
         """
         It reads a json file, creates a dictionary, loops through the json file, creates a label for
@@ -212,7 +152,6 @@ class Admin:
         # A variable to keep track of the index of the label.
         onlIndex = 0
         
-        # Placing all the widgets in the Online_Frame to the top left corner of the frame.
         for widget in self.Online_Frame.winfo_children():
             widget.place(relheight=0, relwidth=0)
 
@@ -229,17 +168,27 @@ class Admin:
         pass
     
     
-        def createAccount(self, jsonFile, jsonObject):
-            """
-            It takes a json file, and a json object, and appends the json object to the json file
+    #function support for Authentification    
+    def processAccount(self, acc, adr):
+        """
+        It takes a string of the form "name:password" and "address:port" and returns a dictionary with
+        the keys "name", "password", "address", "port", and "isAct" with the values being the
+        corresponding values from the input strings
         
-            :param jsonFile: The json file that is being read from
-            :param jsonObject: {"name": "John", "age": 30, "city": "New York"}
-            :return: The jsonFile and the Success_message
-            """
-            jsonFile["account"].append(jsonObject)
-            return jsonFile, "SUCCESS"
-       
+        :param acc: {'name': 'password'}
+        :param adr: {'127.0.0.1': '8080'}
+        :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
+        """
+        Information = {}
+        accInfor=acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
+        adrInfor=adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
+        Information["name"] = accInfor[0]
+        Information["password"] = accInfor[1]
+        Information["address"] = adrInfor[0]
+        Information["port"] = adrInfor[1]
+        Information["isAct"] = 1
+        return Information
+    
     
     def checkAccount(self, jsonFile, jsonObject):
         """
@@ -252,18 +201,26 @@ class Admin:
         :return: The jsonFile and the message
         """
         for account in jsonFile["account"]:
-            
-            # Checking if the name and password in the jsonObject are the same as the name and
-            # password in the account.
             if account["name"] == jsonObject["name"] and account["password"]==jsonObject["password"]: 
-                # Updating the address, port, and isAct fields in the jsonFile.
-                account["address"] = jsonObject["address"]    
+                account["address"] = jsonObject["address"]
                 account["port"] = jsonObject["port"]
                 account["isAct"] = 1
-                return jsonFile, "SUCCESS"
-        return jsonFile, "FAILED"
+                return jsonFile, MESS_SUCCESS
+        return jsonFile, MESS_FAILURE
     
-
+    
+    def createAccount(self, jsonFile, jsonObject):
+        """
+        It takes a json file, and a json object, and appends the json object to the json file
+        
+        :param jsonFile: The json file that is being read from
+        :param jsonObject: {"name": "John", "age": 30, "city": "New York"}
+        :return: The jsonFile and the MESS_SUCCESS
+        """
+        jsonFile["account"].append(jsonObject)
+        return jsonFile, MESS_SUCCESS
+    
+    
     def Deactive_acc(self, userName):
         """
         It opens the json file, finds the account with the name that matches the userName parameter,
@@ -271,25 +228,35 @@ class Admin:
         
         :param userName: The name of the user to be deactivated
         """
-        with open("account.json", "rb") as f: # open json file
+        with open("account.json", "rb") as f:
             jsonFile = json.load(f)
         
-        # Looping through the json file and if the name is equal to the userName, it will set the
-        # isAct to 0.
-        for account in jsonFile["account"]: 
+        for account in jsonFile["account"]:
             if account["name"] == userName:
                 account["isAct"] = 0
         with open('account.json','w') as f:
             json.dump(jsonFile,f)   
 
         self.updateUserList()
-        
-        
-# SERVER PROCESS 
+#------------------------ SERVER PROCESS ---------------------
     #FOR ADMIN USER
+    # Enforce normal user to  login before allow them to chat with other
+    def userHandle(self,channel, client):
+        """
+        The function userHandle() is called when a user connects to the server. It calls the
+        userAuthen() function to authenticate the user, then calls the updateUserList() function to
+        update the user list, and finally calls the userChat() function to allow the user to chat
+        
+        :param channel: The channel that the user is in
+        :param client: The client object that is connected to the server
+        """
+        self.user_Authentication(channel, client)
+        self.updateUserList()
+        self.userChat(channel, client)
         
     # Authentification for normal user
-       
+    
+    
     def user_Authentication(self, channel, client):
         """
         It receives a message from the client, then sends a message back to the client to ensure that
@@ -298,39 +265,36 @@ class Admin:
         :param channel: the channel that the client is connected to
         :param client: the client socket
         """
-        Acc = None
+        acc = None
         mess = None
-        while mess!="SUCCESS":
-
-            type = self.receive_message(channel,client)
-            #self.Send_mess(channel, client, "Received")      # ensure client receive inorder
-            Acc = self.receive_message(channel, client)
-            #self.Send_mess(channel, client, "Received")      # ensure client receive inorder
-            Adr = self.receive_message(channel , client)
-            #self.Send_mess(channel, client, "Received") 
+        while mess!=MESS_SUCCESS:
+            print("-------------------------------------------")
+            mode = self.receive_message(channel,client)
+            self.Send_mess(channel, client, "Received")      # ensure client receive inorder
+            acc = self.receive_message(channel, client)
+            self.Send_mess(channel, client, "Received")      # ensure client receive inorder
+            adr = self.receive_message(channel , client)
+            self.Send_mess(channel, client, "Received") 
             
             # Update 
-            jsonObject = self.processAccount(Acc, Adr)
+            jsonObject = self.processAccount(acc, adr)
             print(jsonObject)
             with open("account.json", "rb") as f:
                 jsonFile = json.load(f)
 
-            # Receiving a message from the client and then checking the type of message. If the type
-            # is 1, it will check the account. If the type is 2, it will create an account.
             print(self.receive_message(channel , client))
-            if int(type)==1: 
+            if int(mode)==MODE_LOGIN: 
                 jsonFile, mess = self.checkAccount(jsonFile, jsonObject)
                 self.Send_mess(channel, client, mess)
-            elif int(type)==2:
+            elif int(mode)==MODE_SIGNIN:
                 jsonFile, mess = self.createAccount(jsonFile, jsonObject)
                 self.Send_mess(channel, client, mess)
             print(self.receive_message(channel, client))
 
-            # Open a json file and writing the jsonFile variable to it.
             with open('account.json','w') as f:
                 json.dump(jsonFile,f)
 
-
+            print("-------------------------------------------")
             
             
     # Communication with Normal User
@@ -347,7 +311,6 @@ class Admin:
         # Sending the json file to the client.
         while friendID != -1:
             print("check")
-            # Sending a json file to the client.
             if friendID>=-1 or friendID==-2:
                 with open("account.json", "rb") as f:
                     jsonFile = json.load(f)                   # load json filefA
@@ -365,37 +328,17 @@ class Admin:
         self.Send_mess(channel, client, "Diconnected")
         self.Deactive_acc(userName)
         self.curr_client -= 1
-        
-    # Enforce normal user to  login before allow them to chat with other    
-    def userHandle(self,channel, client):
-        """
-        The function userHandle() is called when a user connects to the server. It calls the
-        userAuthen() function to authenticate the user, then calls the updateUserList() function to
-        update the user list, and finally calls the userChat() function to allow the user to chat
-        
-        :param channel: The channel that the user is in
-        :param client: The client object that is connected to the server
-        """
-        # Calling the user_Authentication function and passing the channel and client as parameters.
-        self.user_Authentication(channel, client)
-        
-        # Updating the user list.
-        self.updateUserList()
-        
-        # Calling the userChat function and passing the channel and client as parameters.
-        self.userChat(channel, client)
-        
-        
     
     # Admin user just have server-process, which keeps track on database, normal user Informationmation
 
 if __name__=="__main__":
-    print("You are Admin")
+    print("Messenger Clone: Admin")
     admin = Admin()
+    
     
     # Creating a thread that will run the admin.listen() function.
     thread = threading.Thread(target = admin.listen)
-    thread.TF= True
+    thread.daemon= True
     thread.start()
 
     admin.gui.mainloop()
