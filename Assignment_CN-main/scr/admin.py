@@ -24,8 +24,8 @@ COLOR_4 = "#ffffff"
 #MODE_LOGIN = 1
 #MODE_SIGNIN = 2
 
-Success_message = "SUCCESS"
-Fail_message = "FAILED"
+#Success_message = "SUCCESS"
+#Fail_message = "FAILED"
 
 user_list = {} # list of user
 class Admin:
@@ -52,39 +52,59 @@ class Admin:
         # Creating a GUI window with a title, size, and color.
         # Creating a GUI for the admin to see the online users.
         self.gui = Tk()
+        
         self.gui.title("ADMIN GUI")
+        
         self.gui.geometry("600x600")
+        
         self.gui.protocol("WM_DELETE_WINDOW", self.Close)
+        
   
-        self.Frame = Frame(self.gui)
-        self.Id_Room = Label(self.Frame, text="ID ROOM")
-        self.idLabel = Label(self.Frame, text="WELCOME TO ADMIN GUI")
-        self.Input = Label(self.Frame, text=self.host_server)
-        self.idLabel.config(font=("Arial", 25), bg=COLOR_1, fg=COLOR_4)
-        self.idLabel.pack()
+        self.Frame = Frame(self.gui) # The frame for the IP address of the server
+        
+        self.Id_Room = Label(self.Frame, text="ID ROOM") # The ID of the room
+        
+        self.idLabel = Label(self.Frame, text="WELCOME TO ADMIN GUI") # Welcome message
+        
+        self.Input = Label(self.Frame, text=self.host_server) # The IP address of the server
+        
+        self.idLabel.config(font=("Arial", 25), bg=COLOR_1, fg=COLOR_4) # The font, color, and size of the welcome message.
+        
+        self.idLabel.pack() # The welcome message is packed.
         
 
-        self.Frame.config(bg=COLOR_2)
-        self.Id_Room.config(bg=COLOR_1, fg=COLOR_4)
-        self.Input.config(bg="#ffffff", fg=COLOR_1)
+        self.Frame.config(bg=COLOR_2)    # The  color of the frame.
+        
+        self.Id_Room.config(bg=COLOR_1, fg=COLOR_4) # The font, color, and size of the ID of the room.
+        
+        self.Input.config(bg="#ffffff", fg=COLOR_1) # The font, color, and size of the IP address of the server.
 
-        self.Frame.place(relheight=0.34, relwidth=1)
-        self.Id_Room.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32)
-        self.Input.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52)
+        self.Frame.place(relheight=0.34, relwidth=1) # The size of the frame.
+        
+        self.Id_Room.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32) # The size of the ID of the room.
+        
+        self.Input.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52) # The size of the IP address of the server.
 
 
-        self.Act_Frame = Frame(self.gui)
-        self.Online_Frame = Frame(self.Act_Frame)       
-        self.onlIntro = Label(self.Online_Frame, text="LIST OF ONLINE USER")
+        self.Act_Frame = Frame(self.gui) # The frame for the list of online users.
+        
+        self.Online_Frame = Frame(self.Act_Frame)        # The frame for the list of online users. 
+        
+        self.onlIntro = Label(self.Online_Frame, text="LIST OF ONLINE USER")  # The list of online users.
 
-        self.Online_Frame.config(bg = COLOR_4)
-        self.Act_Frame.config(bg = COLOR_2)
-        self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)
+        self.Online_Frame.config(bg = COLOR_4)  # The color of the frame for the list of online users.
+        
+        self.Act_Frame.config(bg = COLOR_2) # The color of the frame for the list of online users.
+        
+        self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)  # The font, color, and size of the list of online users.  
 
-        self.Online_Frame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)
-        self.Act_Frame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3)
-        self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02)
-        self.Online_User = []
+        self.Online_Frame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)  # The  size of the frame for the list of online users.
+        
+        self.Act_Frame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3) # The size of the frame for the list of online users.
+        
+        self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02) # The  size of the list of online users.
+        
+        self.Online_User = [] #if user is online, add to this list
 
 
 #BASIC FUNCTION
@@ -96,13 +116,20 @@ class Admin:
         while self.curr_client<MAX_CILENT: # no more than 10 clients
             # accept new client and create a new thread for it
             channel,client = self.server_process.accept() 
+            
             print(f"Client: {client}") # print client address
+            
             try: # try to create a new thread
                 self.curr_client += 1 # get new client
+                
                 thr = threading.Thread(target=self.userHandle, args=(channel,client)) # create new thread
+                
                 thr.TF = False # set TF to False
+                
                 thr.start() # start thread
+                
             except: 
+                
                 print("error") # print error
                 
                 
@@ -132,6 +159,7 @@ class Admin:
     #fucntion support for close the connection
     def Close(self): 
         self.server_process.close() # close server
+        
         self.gui.destroy() # close gui
     #function support for update user list
     
@@ -147,13 +175,22 @@ class Admin:
         :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
         """
         Information = {}
-        accInfor=Acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
-        adrInfor=Adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
-        Information["name"] = accInfor[0]
-        Information["password"] = accInfor[1]
+        
+        accInfor=Acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":") # remove all the characters that are not needed
+        
+        adrInfor=Adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":") # remove all the characters that are not needed
+        # Creating a dictionary called Information and adding the values of the accInfor and adrInfor
+        # lists to it.
+        Information["name"] = accInfor[0]   
+        
+        Information["password"] = accInfor[1]    
+        
         Information["address"] = adrInfor[0]
+        
         Information["port"] = adrInfor[1]
+        
         Information["isAct"] = 1
+        
         return Information
     
     
@@ -201,7 +238,7 @@ class Admin:
             :return: The jsonFile and the Success_message
             """
             jsonFile["account"].append(jsonObject)
-            return jsonFile, Success_message
+            return jsonFile, "SUCCESS"
        
     
     def checkAccount(self, jsonFile, jsonObject):
@@ -215,12 +252,16 @@ class Admin:
         :return: The jsonFile and the message
         """
         for account in jsonFile["account"]:
+            
+            # Checking if the name and password in the jsonObject are the same as the name and
+            # password in the account.
             if account["name"] == jsonObject["name"] and account["password"]==jsonObject["password"]: 
-                account["address"] = jsonObject["address"]
+                # Updating the address, port, and isAct fields in the jsonFile.
+                account["address"] = jsonObject["address"]    
                 account["port"] = jsonObject["port"]
                 account["isAct"] = 1
-                return jsonFile, Success_message
-        return jsonFile, Fail_message
+                return jsonFile, "SUCCESS"
+        return jsonFile, "FAILED"
     
 
     def Deactive_acc(self, userName):
@@ -230,35 +271,25 @@ class Admin:
         
         :param userName: The name of the user to be deactivated
         """
-        with open("account.json", "rb") as f:
+        with open("account.json", "rb") as f: # open json file
             jsonFile = json.load(f)
         
-        for account in jsonFile["account"]:
+        # Looping through the json file and if the name is equal to the userName, it will set the
+        # isAct to 0.
+        for account in jsonFile["account"]: 
             if account["name"] == userName:
                 account["isAct"] = 0
         with open('account.json','w') as f:
             json.dump(jsonFile,f)   
 
         self.updateUserList()
+        
+        
 # SERVER PROCESS 
     #FOR ADMIN USER
-    # Enforce normal user to  login before allow them to chat with other
-    def userHandle(self,channel, client):
-        """
-        The function userHandle() is called when a user connects to the server. It calls the
-        userAuthen() function to authenticate the user, then calls the updateUserList() function to
-        update the user list, and finally calls the userChat() function to allow the user to chat
-        
-        :param channel: The channel that the user is in
-        :param client: The client object that is connected to the server
-        """
-        self.user_Authentication(channel, client)
-        self.updateUserList()
-        self.userChat(channel, client)
         
     # Authentification for normal user
-    
-    
+       
     def user_Authentication(self, channel, client):
         """
         It receives a message from the client, then sends a message back to the client to ensure that
@@ -269,7 +300,7 @@ class Admin:
         """
         Acc = None
         mess = None
-        while mess!=Success_message:
+        while mess!="SUCCESS":
 
             type = self.receive_message(channel,client)
             #self.Send_mess(channel, client, "Received")      # ensure client receive inorder
@@ -295,6 +326,7 @@ class Admin:
                 self.Send_mess(channel, client, mess)
             print(self.receive_message(channel, client))
 
+            # Open a json file and writing the jsonFile variable to it.
             with open('account.json','w') as f:
                 json.dump(jsonFile,f)
 
@@ -315,6 +347,7 @@ class Admin:
         # Sending the json file to the client.
         while friendID != -1:
             print("check")
+            # Sending a json file to the client.
             if friendID>=-1 or friendID==-2:
                 with open("account.json", "rb") as f:
                     jsonFile = json.load(f)                   # load json filefA
@@ -332,6 +365,27 @@ class Admin:
         self.Send_mess(channel, client, "Diconnected")
         self.Deactive_acc(userName)
         self.curr_client -= 1
+        
+    # Enforce normal user to  login before allow them to chat with other    
+    def userHandle(self,channel, client):
+        """
+        The function userHandle() is called when a user connects to the server. It calls the
+        userAuthen() function to authenticate the user, then calls the updateUserList() function to
+        update the user list, and finally calls the userChat() function to allow the user to chat
+        
+        :param channel: The channel that the user is in
+        :param client: The client object that is connected to the server
+        """
+        # Calling the user_Authentication function and passing the channel and client as parameters.
+        self.user_Authentication(channel, client)
+        
+        # Updating the user list.
+        self.updateUserList()
+        
+        # Calling the userChat function and passing the channel and client as parameters.
+        self.userChat(channel, client)
+        
+        
     
     # Admin user just have server-process, which keeps track on database, normal user Informationmation
 
