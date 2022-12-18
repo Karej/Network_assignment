@@ -75,6 +75,9 @@ class User:
     # server-process listen to client
 
     def listen(self):
+        """
+        It creates a thread for each client that connects to the server
+        """
         while self.curr_client < MAX_CILENT:
             channel, client = self.server_proc.accept()
             print(f"\nClient: {client}")
@@ -160,6 +163,11 @@ class User:
         return userID
 
     def refreshFriendList(self):
+        """
+        It sends a message to the server, receives a message from the server, sends a message to the
+        server, receives a message from the server, closes the socket, creates a new socket, connects to
+        the server, and sends a message to the server.
+        """
         self.client_proc.sendall("-1".encode(FORMAT))
         self.client_proc.recv(1024).decode(FORMAT)
         self.client_proc.sendall(self.userName.encode(FORMAT))
@@ -178,6 +186,22 @@ class User:
     # Communication with other normal user
 
     def userChat(self, channel, client):
+        """
+        The function is called when a friend is connected to the server. 
+        
+        The function receives the friend's name and displays a message box to notify the user. 
+        
+        Then the function receives messages from the friend and displays them in the message box. 
+        
+        If the friend sends a file, the function asks the user if he wants to save the file. 
+        
+        If the user agrees, the function receives the file and saves it. 
+        
+        If the friend leaves the conversation, the function displays a message
+        
+        :param channel: the channel to send the message
+        :param client: the client socket
+        """
         global outFlag
 
         mess = None
@@ -245,6 +269,22 @@ class User:
     # Execute Authentication follow the server instruction
 
     def serverLogin(self, mode, name, password):
+        """
+        I send a message to the server, the server receives it, then I send another message to the
+        server, the server receives it, then I send another message to the server, the server receives
+        it, then I send another message to the server, the server receives it, then I send another
+        message to the server, the server receives it, then I send another message to the server, the
+        server receives it, then I send another message to the server, the server receives it, then I
+        send another message to the server, the server receives it, then I send another message to the
+        server, the server receives it, then I send another message to the server, the server receives
+        it, then I send another message to the server, the server receives it, then I send another
+        message to the server, the server receives it, then I send another message to the server, the
+        server receives it, then I send another message to the server, the server receives it, then I
+        
+        :param mode: 1 for login, 2 for signin
+        :param name: the username of the user
+        :param password: the password of the user
+        """
         mess = None
         # send mode to server
         self.client_proc.sendall(str(mode).encode(FORMAT))
@@ -316,6 +356,10 @@ class User:
         pass
 
     def onClosing(self):
+        """
+        It sends a message to the server to tell it that the user is leaving, and then closes the
+        connection.
+        """
         try:
             self.client_proc.sendall(str(-1).encode(FORMAT))
             self.client_proc.recv(1024).decode(FORMAT)
@@ -330,6 +374,11 @@ class User:
         root.destroy()
 
     def serverChat(self, name):
+        """
+        It connects to a friend's chat server and sends the user's name to the friend's chat server.
+        
+        :param name: the name of the friend you want to connect to
+        """
         global outFlag
         global connect_friend
 

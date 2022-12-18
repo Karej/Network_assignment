@@ -1,4 +1,3 @@
-# It creates a GUI for the admin to see the list of online users and the list of offline users
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
@@ -6,7 +5,6 @@ import socket
 import threading
 import json
 
-#ADMIN_ADDR = "192.168.1.12"
 ADMIN_ADDR = socket.gethostbyname(socket.gethostname())
 #Port
 ADMIN_PORT = 5505 
@@ -21,11 +19,6 @@ COLOR_2 = "#1337ac"
 COLOR_3 = "#617dd7"
 COLOR_4 = "#ffffff"
 
-MODE_LOGIN = 1
-MODE_SIGNIN = 2
-
-MESS_SUCCESS = "SUCCESS"
-MESS_FAILURE = "FAILED"
 
 user_list = {} # list of user
 class Admin:
@@ -62,28 +55,26 @@ class Admin:
         self.idLabel.config(font=("Arial", 25), bg=COLOR_1, fg=COLOR_4)
         self.idLabel.pack()
         
-        #--------Component config
-        self.Frame.config(bg=COLOR_2)
+        
+        
+       # The above code is creating a GUI for the chat application.
+        self.Frame.config(bg=COLOR_2)       
         self.Id_Room.config(bg=COLOR_1, fg=COLOR_4)
         self.Input.config(bg="#ffffff", fg=COLOR_1)
-        #--------Component place
         self.Frame.place(relheight=0.34, relwidth=1)
         self.Id_Room.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.32)
         self.Input.place(relheight=0.15, relwidth=0.3, relx=0.35, rely=0.52)
-
-        #Action Frame
         self.Act_Frame = Frame(self.gui)
-        self.Online_Frame = Frame(self.Act_Frame)
-        
+        self.Online_Frame = Frame(self.Act_Frame)       
         self.onlIntro = Label(self.Online_Frame, text="LIST OF ONLINE USER")
-        #-------Component config
         self.Online_Frame.config(bg = COLOR_4)
         self.Act_Frame.config(bg = COLOR_2)
         self.onlIntro.config(bg = COLOR_1, fg = COLOR_4)
-        #-------Component place
         self.Online_Frame.place(relheight=0.55, relwidth=0.7, relx=0.15, rely=0.11)
         self.Act_Frame.place(relheight=0.9, relwidth=1, relx=0,rely=0.3)
         self.onlIntro.place(relheight=0.1, relwidth=0.6, relx=0.2,rely=0.02)
+        
+        
         self.Online_User = []
         #self.offUser = []
 
@@ -135,37 +126,7 @@ class Admin:
     #function support for update user list
     
     
-    def updateUserList(self):
-        """
-        It reads a json file, creates a dictionary, loops through the json file, creates a label for
-        each account, places the label in a frame, and then writes the json file.
-        """
-        with open("account.json", "rb") as f: 
-            jsonFile = json.load(f) # read json file
-        self.Online_User = {} # create new dictionary
-        
-        for account in jsonFile["account"]: # loop through all account
-            # Creating a new label with the name of the account.
-            self.Online_User[account["name"]] = Label(self.Online_Frame, text=account['name']) 
-            self.Online_User[account["name"]].config(bg=COLOR_1, fg=COLOR_4) 
-
-        # A variable to keep track of the index of the label.
-        onlIndex = 0
-        
-        for widget in self.Online_Frame.winfo_children():
-            widget.place(relheight=0, relwidth=0)
-
-        self.onlIntro.place(relheight=0.1, relwidth=0.3, relx=0.2)
-        # This is a loop that goes through all the accounts in the json file and checks if the account
-        # is active. If it is, it will add 1 to the index and place the label in the frame.
-        for account in jsonFile["account"]:
-            if account["isAct"] == 1:
-                onlIndex+=1
-                self.Online_User[account["name"]].place(relheight=0.1, relwidth = 0.8, relx=0.1, rely =  onlIndex*0.15)
-
-        with open('account.json','w') as f:
-            json.dump(jsonFile,f) 
-        pass
+    
     
     
     #function support for Authentification    
@@ -180,13 +141,17 @@ class Admin:
         :return: A dictionary with the keys "name", "password", "address", "port", and "isAct".
         """
         Information = {}
+        # Replacing the curly braces, single quotes, and spaces with nothing.
         accInfor=acc.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
         adrInfor=adr.replace("{","").replace("}","").replace("'","").replace(" ","").split(":")
+        # Creating a dictionary called Information and adding the values of the accInfor and adrInfor
+        # lists to it.
         Information["name"] = accInfor[0]
         Information["password"] = accInfor[1]
         Information["address"] = adrInfor[0]
         Information["port"] = adrInfor[1]
         Information["isAct"] = 1
+        
         return Information
     
     
@@ -205,8 +170,8 @@ class Admin:
                 account["address"] = jsonObject["address"]
                 account["port"] = jsonObject["port"]
                 account["isAct"] = 1
-                return jsonFile, MESS_SUCCESS
-        return jsonFile, MESS_FAILURE
+                return jsonFile, "SUCCESS"
+        return jsonFile, "FAILED"
     
     
     def createAccount(self, jsonFile, jsonObject):
@@ -215,10 +180,10 @@ class Admin:
         
         :param jsonFile: The json file that is being read from
         :param jsonObject: {"name": "John", "age": 30, "city": "New York"}
-        :return: The jsonFile and the MESS_SUCCESS
+        :return: The jsonFile and the "SUCCESS"
         """
         jsonFile["account"].append(jsonObject)
-        return jsonFile, MESS_SUCCESS
+        return jsonFile, "SUCCESS"
     
     
     def Deactive_acc(self, userName):
@@ -267,7 +232,7 @@ class Admin:
         """
         acc = None
         mess = None
-        while mess!=MESS_SUCCESS:
+        while mess!="SUCCESS":
             print("-------------------------------------------")
             mode = self.receive_message(channel,client)
             self.Send_mess(channel, client, "Received")      # ensure client receive inorder
@@ -283,10 +248,10 @@ class Admin:
                 jsonFile = json.load(f)
 
             print(self.receive_message(channel , client))
-            if int(mode)==MODE_LOGIN: 
+            if int(mode)==1:  #login
                 jsonFile, mess = self.checkAccount(jsonFile, jsonObject)
                 self.Send_mess(channel, client, mess)
-            elif int(mode)==MODE_SIGNIN:
+            elif int(mode)==2: #signing2
                 jsonFile, mess = self.createAccount(jsonFile, jsonObject)
                 self.Send_mess(channel, client, mess)
             print(self.receive_message(channel, client))
@@ -295,6 +260,38 @@ class Admin:
                 json.dump(jsonFile,f)
 
             print("-------------------------------------------")
+            
+    def updateUserList(self):
+        """
+        It reads a json file, creates a dictionary, loops through the json file, creates a label for
+        each account, places the label in a frame, and then writes the json file.
+        """
+        with open("account.json", "rb") as f: 
+            jsonFile = json.load(f) # read json file
+        self.Online_User = {} # create new dictionary
+        
+        for account in jsonFile["account"]: # loop through all account
+            # Creating a new label with the name of the account.
+            self.Online_User[account["name"]] = Label(self.Online_Frame, text=account['name']) 
+            self.Online_User[account["name"]].config(bg=COLOR_1, fg=COLOR_4) 
+
+        # A variable to keep track of the index of the label.
+        onlIndex = 0
+        
+        for widget in self.Online_Frame.winfo_children():
+            widget.place(relheight=0, relwidth=0)
+
+        self.onlIntro.place(relheight=0.1, relwidth=0.3, relx=0.2)
+        # This is a loop that goes through all the accounts in the json file and checks if the account
+        # is active. If it is, it will add 1 to the index and place the label in the frame.
+        for account in jsonFile["account"]:
+            if account["isAct"] == 1:
+                onlIndex+=1
+                self.Online_User[account["name"]].place(relheight=0.1, relwidth = 0.8, relx=0.1, rely =  onlIndex*0.15)
+
+        with open('account.json','w') as f:
+            json.dump(jsonFile,f) 
+        pass
             
             
     # Communication with Normal User
@@ -331,6 +328,7 @@ class Admin:
     
     # Admin user just have server-process, which keeps track on database, normal user Informationmation
 
+# The above code is creating a new thread and starting it.
 if __name__=="__main__":
     print("Messenger Clone: Admin")
     admin = Admin()
@@ -338,8 +336,11 @@ if __name__=="__main__":
     
     # Creating a thread that will run the admin.listen() function.
     thread = threading.Thread(target = admin.listen)
+    # Setting the thread to be a daemon thread.
     thread.daemon= True
+    # The above code is creating a new thread and starting it.
     thread.start()
 
+    # Creating a GUI window with a title of "Admin" and a label of "Python".
     admin.gui.mainloop()
    
